@@ -7,7 +7,7 @@ function ProgressBar({ savingsPercentage }) {
     return (     
         <View style={styles.grayBackground}>
           <View style={[styles.greenFill, { width: `${savingsPercentage}%` }]}></View>
-          <Text style={styles.percentageSaved}>{savingsPercentage}% saved</Text>
+          <Text style={styles.percentageSaved}>{savingsPercentage.toFixed(2)}% saved</Text>
         </View>
     );
   }
@@ -15,7 +15,7 @@ function ProgressBar({ savingsPercentage }) {
 export default function FreeSaving({ navigation }) {
     const {goal, targetAmount} = useLocalSearchParams();
     const [savedAmount, setSavedAmount] = useState(0);
-    const savingsPercentage = ((savedAmount / targetAmount) * 100).toFixed(2);
+    const savingsPercentage = !isNaN(targetAmount) && targetAmount > 0 ? (savedAmount / targetAmount) * 100 : 0;
     const [goalAchieved, setGoalAchieved] = useState(false); 
     const [input, setInput] = useState('');
 

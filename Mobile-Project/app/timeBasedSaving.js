@@ -8,7 +8,7 @@ function ProgressBar({ savingsPercentage }) {
     return (    
         <View style={styles.grayBackground}>
           <View style={[styles.greenFill, { width: `${savingsPercentage}%` }]}></View>
-          <Text style={styles.percentageSaved}>{savingsPercentage}% saved</Text>
+          <Text style={styles.percentageSaved}>{savingsPercentage.toFixed(2)}% saved</Text>
         </View>
     );
   }
@@ -54,7 +54,7 @@ export default function TimeSavingDetails({ navigation }) {
     const [timeUp, setTimeUp] = useState(false);
     const [goalAchieved, setGoalAchieved] = useState(false); 
     const [savedAmount, setSavedAmount] = useState(0);
-    const savingsPercentage = ((savedAmount / newTargetAmount) * 100).toFixed(2);
+    const savingsPercentage = !isNaN(newTargetAmount) && newTargetAmount > 0 ? (savedAmount / newTargetAmount) * 100 : 0;
     const [input, setInput] = useState('');
 
   useEffect(() => {
