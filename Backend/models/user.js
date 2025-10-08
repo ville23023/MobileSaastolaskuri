@@ -10,6 +10,15 @@ const userSchema = new mongoose.Schema({
     trim: true,
     unique: true,
   },
+  email: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 100,
+    trim: true,
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/],
+  },
   password: {
     type: String,
     required: true,

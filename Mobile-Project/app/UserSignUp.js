@@ -12,8 +12,8 @@ export default function UserSignUp() {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
-  const validateForm = (e) => {
-  
+  const validateForm = async() => {
+
     if (!username.trim()) {
       setErrorMessage("Username is required.");
       return;
