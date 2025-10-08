@@ -1,0 +1,164 @@
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { useRouter } from "expo-router";
+import React, { useState } from 'react';
+
+export default function UserSignUp() {
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
+
+  const validateForm = (e) => {
+  
+    if (!username.trim()) {
+      setErrorMessage("Username is required.");
+      return;
+    }
+    if (!email.trim()) {
+      setErrorMessage("Email is required.");
+      return;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setErrorMessage("Email is invalid.");
+      return;
+    } 
+    
+    if (!password.trim()) {
+      setErrorMessage("Password is required.");
+      return; 
+    }
+    if (!confirmPassword.trim()) {
+      setErrorMessage("Confirm password.");
+      return; 
+    }
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return; 
+    }
+    router.push("/UserLogin")
+  }
+
+  return (
+    <ImageBackground
+      source={require('../assets/background.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Create Your Account</Text>
+        <Text style={styles.subtitle}>
+          Sign up to start planning your savings goals today.
+        </Text>
+
+        <Text style={styles.loginHeader}>Sign Up</Text>
+
+        {errorMessage !== "" && (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        )}        
+
+        <TextInput 
+          style={styles.input} 
+          placeholder="Username" 
+          placeholderTextColor="#555" 
+          onChangeText={setUsername}
+        />
+        <TextInput 
+          style={styles.input} 
+          placeholder="Email"
+          placeholderTextColor="#555" 
+          keyboardType="email-address"
+          onChangeText={setEmail}
+        />
+        <TextInput 
+          style={styles.input} 
+          placeholder="Password" 
+          placeholderTextColor="#555" 
+          secureTextEntry 
+          onChangeText={setPassword}
+        />
+        <TextInput 
+          style={styles.input} 
+          placeholder="Confirm Password" 
+          placeholderTextColor="#555" 
+          secureTextEntry 
+          onChangeText={setConfirmPassword}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={validateForm}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/UserLogin")}>
+          <Text style={styles.registerText}>Already have an account? Log in here</Text>
+        </TouchableOpacity>
+        
+        <StatusBar style="auto" />
+      </View>
+    </ImageBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#ffefdfcc'
+  },
+  subtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 5,
+    color: 'rgba(255, 255, 255, 0.8)'
+  },
+  loginHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#ffefdfcc'
+  },
+  input: {
+    width: '80%',
+    backgroundColor: '#e6e6e6',
+    padding: 12,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  button: {
+    backgroundColor: '#7d6ef1',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 6,
+    marginBottom: 20,
+  },
+  buttonText: {
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.8)',
+  },
+  registerText: {
+    fontSize: 14,
+    color: '#ffefdfcc'
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+});

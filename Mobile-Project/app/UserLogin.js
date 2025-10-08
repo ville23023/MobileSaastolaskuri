@@ -1,0 +1,136 @@
+import React, { useState } from "react";
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { useRouter } from "expo-router";
+
+export default function UserLogin() {
+
+  const [userName, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const router = useRouter();
+
+  const checkInputText = () =>{
+    if(!userName.trim()){
+      alert("Enter username!");
+      return;
+    }
+    if(!password.trim()){
+      alert("Enter password!");
+      return;
+    }
+    login();
+  }
+
+  const createUser = () =>{
+    return{
+      "Username": userName,
+      "Password": password,
+    }
+  }
+
+  const login = () =>{
+    let user = createUser();
+    console.log(user);
+    router.replace("/Home");
+  }
+
+  return (
+    <ImageBackground
+      source={require('../assets/background.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Welcome to the Savings Planner!</Text>
+        <Text style={styles.subtitle}>
+          Use our calculator to see how long it will take to achieve your goal.
+        </Text>
+        <Text style={styles.subtitle}>Sign up and start planning today.</Text>
+
+        <Text style={styles.loginHeader}>Login</Text>
+
+        <TextInput 
+          style={styles.input} 
+          placeholder="Username" 
+          placeholderTextColor="#555"
+          onChangeText={setUsername}
+        />
+        <TextInput 
+          style={styles.input} 
+          placeholder="Password" 
+          placeholderTextColor="#555" 
+          secureTextEntry
+          onChangeText={setPassword}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={checkInputText}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/UserSignUp")}>
+          <Text style={styles.registerText}>No account? Register here</Text>
+        </TouchableOpacity>
+        
+        <StatusBar style="auto" />
+      </View>
+    </ImageBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#ffefdfcc'
+  },
+  subtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 5,
+    color: 'rgba(255, 255, 255, 0.8)'
+  },
+  loginHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#ffefdfcc'
+  },
+  input: {
+    width: '80%',
+    backgroundColor: '#e6e6e6',
+    padding: 12,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  button: {
+    backgroundColor: '#7d6ef1',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 6,
+    marginBottom: 20,
+  },
+  buttonText: {
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.8)',
+  },
+  registerText: {
+    fontSize: 14,
+    color: '#ffefdfcc'
+  },
+});
