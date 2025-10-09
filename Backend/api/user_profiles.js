@@ -120,6 +120,7 @@ router.post("/api/test_user_creation", async (req, res) => {
   try {
     const test_user = await User.create({
       userName: "testi-ukko",
+      email: "testi@luukku.com",
       password: "password123",
     });
     res.status(201).json("Test user created");
