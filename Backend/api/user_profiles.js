@@ -51,7 +51,7 @@ router.get("/api/users", authenticate, admin, async (req, res) => {
   }
 });
 //Find user by its ID
-router.get("/api/user/:id", async (req, res) => {
+router.get("/api/user/:id", authenticate, admin, async (req, res) => {
   const userId = req.params.id;
   try {
     const user = await User.findById(userId);
