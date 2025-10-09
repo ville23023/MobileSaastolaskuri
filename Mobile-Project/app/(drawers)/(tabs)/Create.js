@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from "expo-router";
 
 export default function Create(){
+  //Modal
+  const [isSaveMyOwnPaceVisible, setIsSaveMyOwnPaceVisible] = useState(false);
+  const [isTimedSavingPlanVisible, setIsTimedSavingPlanVisible] = useState(false);
 
   const [goal, setGoal] = useState("");
   const [targetAmount, setTargetAmount] = useState(0);
@@ -93,73 +96,95 @@ export default function Create(){
   }
     return(
         <SafeAreaView style={styles.container}>
-
-        <View style={styles.topSection}>
-            <View>
-              <Text>Create a new goal!</Text>
-              <Text>Name your goal</Text>
-              <TextInput placeholder="Your goal name here" onChangeText={goalHandler} style={styles.input}/>
-            </View>
-
-            <View>
-              <Text>Targer amount</Text>
-              <TextInput placeholder="Target amount" onChangeText={targetAmountHandler} style={styles.input}/>
-            </View>
-
-            <TouchableOpacity style={styles.customButton} onPress={() => { 
-            router.push({ 
-                pathname: "/freeSaving", 
-                params: {goal, targetAmount},
-                })
-              }}>
-                <Text>Save at my own pace</Text>
+          <View style={styles.topSection}>
+            <TouchableOpacity style={styles.customButton} onPress={()=>setIsSaveMyOwnPaceVisible(true)}>
+              <Text>Save at my own pace</Text>
             </TouchableOpacity>
-            </View>
 
-            <View style={styles.middleSection}>
-              <Text style={{padding:20}}>Or you can create saving goal with time limit</Text>
-            </View>
+            <Text> Or create timed saving plan.</Text>
 
-            <View style={styles.bottomSection}>
-            <View>
-                <Text>Name your goal</Text>
-                <TextInput placeholder="Your goal name here" onChangeText={goalHandler} style={styles.input}/>
-            </View>
-
-            <View>
-                <Text>Targer amount</Text>
-                <TextInput placeholder="Target amount" onChangeText={targetAmountHandler} style={styles.input}/>
-
-                {/* <Text>Weekly amount</Text>
-                <TextInput placeholder="Weekly amount" onChangeText={weeklyAmountHandler} style={styles.input}/> */}
-            </View>
-
-            <TouchableOpacity title="Choose your start date" style={styles.customButton} onPress={()=>showMode("start")}>
-              <Text>Choose your start date</Text>
+            <TouchableOpacity style={styles.customButton} onPress={()=>setIsTimedSavingPlanVisible(true)}>
+              <Text>Timed saving plan!</Text>
             </TouchableOpacity>
-            <Text>{startDate.toLocaleDateString('fi-FI')}</Text>
+          </View>
 
-            <TouchableOpacity title="Choose your end date" style={styles.customButton} onPress={()=>showMode("end")}>
-              <Text>Choose your end date</Text>
-            </TouchableOpacity>
-            <Text>{endDate.toLocaleDateString('fi-FI')}</Text>
-              {
-                open && (
-                  <DateTimePicker
-                    value={showMode === 'start' ? startDate : endDate}
-                    mode={mode}
-                    display="spinner"
-                    locale="fi-FI"
-                    onChange={dateChangeHandler}
-                  />
-                )}
+            <Modal visible={isSaveMyOwnPaceVisible}>
+              <View style={styles.middleSection}>
+                <Text>Save on my own pace</Text>
+                <View>
+                  <Text>Create a new goal!</Text>
+                  <Text>Name your goal</Text>
+                  <TextInput placeholder="Your goal name here" onChangeText={goalHandler} style={styles.input}/>
+                </View>
 
-            <View>
-                <TouchableOpacity style={styles.customButton} onPress={checkInputText}>
-                    <Text>Create</Text>
+                <View>
+                  <Text>Targer amount</Text>
+                  <TextInput placeholder="Target amount" onChangeText={targetAmountHandler} style={styles.input}/>
+                </View>
+
+                <TouchableOpacity style={styles.customButton} onPress={() => { 
+                  router.push({ 
+                      pathname: "/freeSaving", 
+                      params: {goal, targetAmount},
+                      })
+                    }}>
+                      <Text>Create</Text>
                 </TouchableOpacity>
-            </View>
-            </View>
+
+                <TouchableOpacity style={styles.customButton} onPress={()=>setIsSaveMyOwnPaceVisible(false)}>
+                    <Text>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+
+            <Modal visible={isTimedSavingPlanVisible}>
+              <View style={styles.bottomSection}>
+                <Text>Timed saving plan</Text>
+                <View>
+                    <Text>Name your goal</Text>
+                    <TextInput placeholder="Your goal name here" onChangeText={goalHandler} style={styles.input}/>
+                </View>
+
+                <View>
+                    <Text>Targer amount</Text>
+                    <TextInput placeholder="Target amount" onChangeText={targetAmountHandler} style={styles.input}/>
+
+                    {/* <Text>Weekly amount</Text>
+                    <TextInput placeholder="Weekly amount" onChangeText={weeklyAmountHandler} style={styles.input}/> */}
+                </View>
+
+                <TouchableOpacity title="Choose your start date" style={styles.customButton} onPress={()=>showMode("start")}>
+                  <Text>Choose your start date</Text>
+                </TouchableOpacity>
+                <Text>{startDate.toLocaleDateString('fi-FI')}</Text>
+
+                <TouchableOpacity title="Choose your end date" style={styles.customButton} onPress={()=>showMode("end")}>
+                  <Text>Choose your end date</Text>
+                </TouchableOpacity>
+                <Text>{endDate.toLocaleDateString('fi-FI')}</Text>
+                  {
+                    open && (
+                      <DateTimePicker
+                        value={showMode === 'start' ? startDate : endDate}
+                        mode={mode}
+                        display="spinner"
+                        locale="fi-FI"
+                        onChange={dateChangeHandler}
+                      />
+                    )}
+
+                <View>
+                  <TouchableOpacity style={styles.customButton} onPress={checkInputText}>
+                    <Text>Create</Text>
+                  </TouchableOpacity>
+                </View>
+                <View>
+                  <TouchableOpacity style={styles.customButton} onPress={()=>setIsTimedSavingPlanVisible(false)}>
+                    <Text>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
         </SafeAreaView>
     )
 }
@@ -175,6 +200,7 @@ const styles = StyleSheet.create({
     justifyContent:"center"
   },
   middleSection:{
+    alignItems:"center",
     justifyContent:"center"
   },
   bottomSection:{
