@@ -9,18 +9,24 @@ export default function MyDrawer(){
     function CustomDrawerContent(props){
         return(
             <DrawerContentScrollView {...props}>
-                <DrawerItemList {...props}/>
                 <DrawerItem
-                label="Logout"
-                onPress={() => router.replace("/UserLogin")}
+                    label="Home"
+                    onPress={() => {router.push("/Home")}}
+                />
+                <DrawerItem 
+                    label="Settings"
+                    onPress={() => {router.push("/setting")}}
+                />
+                <DrawerItem
+                    label="Logout"
+                    onPress={() => router.replace("/UserLogin")}
                 />
             </DrawerContentScrollView>
         )
     }
     return(
         <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
-            <Drawer.Screen name="(tabs)" options={{ drawerLabel: "Home", title: "Savings Calculator"}}/>
-            <Drawer.Screen name="setting" options={{drawerLabel: "Settings"}} />
+            <Drawer.Screen name="(tabs)" options={{ title: "Savings Calculator" }}/>
         </Drawer>
     )
 }
