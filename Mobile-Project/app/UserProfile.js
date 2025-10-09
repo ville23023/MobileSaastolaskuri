@@ -89,7 +89,7 @@ export default function UserProfile() {
           <Text style={styles.buttonText}>Tallenna</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace("/TÄYTÄ TÄHÄN ROUTE (HOMEPAGE)")}>
+        <TouchableOpacity onPress={() => router.replace("/home")}>
           <Text style={styles.registerText}>← Takaisin kotiin</Text>
         </TouchableOpacity>
       </View>
@@ -100,49 +100,57 @@ export default function UserProfile() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
     marginBottom: 10,
-    textAlign: "center",
-    color: "#ffefdfcc",
+    textAlign: 'center',
+    color: '#ECF3FB',
   },
   subtitle: {
     fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: 'center',
+    marginBottom: 5,
+    color: '#D5DEE9',
+  },
+  loginHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#D9CDB7',
   },
   input: {
-    width: "80%",
-    backgroundColor: "#e6e6e6",
+    width: '80%',
+    backgroundColor: '#DBF1FB',
     padding: 12,
     borderRadius: 6,
     marginBottom: 12,
+    color: '#000',
   },
   button: {
-    backgroundColor: "#7d6ef1",
+    backgroundColor: '#83C7EC',
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 6,
     marginBottom: 20,
   },
   buttonText: {
-    fontWeight: "600",
-    color: "rgba(0, 0, 0, 0.8)",
+    fontWeight: '600',
+    color: '#000',
   },
   registerText: {
     fontSize: 14,
-    color: "#ffefdfcc",
+    color: '#D1B9AA',
   },
 });

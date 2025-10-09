@@ -140,33 +140,46 @@ export default function CreateTimedSaving(){
 }
 
 const styles = StyleSheet.create({
-   container:{
-    flex:1,
-    alignItems:"center",
+  container: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
-  topSection:{
-    flex:1,
-    alignItems:"center",
-    justifyContent:"center"
+  topSection: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  middleSection:{
-    alignItems:"center",
-    justifyContent:"center"
+  middleSection: {
+    alignItems: "center",
+    justifyContent: "center",
   },
-  bottomSection:{
-    flex:1,
-    alignItems:"center",
+  bottomSection: {
+    flex: 1,
+    alignItems: "center",
+    padding: 20,
   },
-  customButton:{
-    marginTop:10,
-    padding:15,
-    borderBlockColor:"#7b3e3eff",
-    borderRadius:8,
-    borderWidth:2,
+  customButton: {
+    marginTop: 10,
+    padding: 15,
+    borderColor: "#83C7EC",
+    borderRadius: 8,
+    borderWidth: 2,
+    backgroundColor: "#D9CDB7",
   },
-  input:{
-    borderWidth:2,
-    borderRadius:8,
-    borderBlockColor:"#7b3e3eff",
-  }
-})
+  input: {
+    borderWidth: 2,
+    borderRadius: 8,
+    borderColor: "#D1B9AA",
+    backgroundColor: "#DBF1FB",
+    padding: 10,
+    marginBottom: 10,
+    color: "#000",
+    width: 250,
+  },
+  text: {
+    color: "#ECF3FB",
+    fontSize: 16,
+    marginBottom: 5,
+  },
+});
