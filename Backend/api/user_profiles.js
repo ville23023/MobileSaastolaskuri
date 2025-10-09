@@ -64,14 +64,16 @@ router.get("/api/user/:id", async (req, res) => {
 //Update user
 router.patch("/api/user-update/:id", async (req, res) => {
   const userToUpdate = req.params.id;
-  const { userName, password } = req.body;
+  const { userName, email, password } = req.body;
   try {
     const user = await User.findById(userToUpdate);
     if (!user) {
       res.status(204).json("User not found");
     }
     if(userName) user.userName = userName;
+    if(email) user.email = email;
     if(password) user.password = password;
+    
     await user.save();
     res.status(200).json("Update completed")
   } catch (error) {
