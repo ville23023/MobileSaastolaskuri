@@ -40,7 +40,7 @@ export default function Home(){
       </View>
 
         <View style={styles.bottomSection}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.customButton} onPress={() => router.push("/create")}>
+          <TouchableOpacity activeOpacity={0.8} style={styles.customButton} onPress={() => router.push("/Create")}>
               <Text>Create new savings goal</Text>
           </TouchableOpacity>
         </View>
