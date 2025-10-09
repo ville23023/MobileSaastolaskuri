@@ -8,9 +8,15 @@ const authenticate = (req, res, next) =>{
         if(error){
             res.status(403).json("Invalid token");
         }else{
+            req.user = decoded;
             next();
         }
     });
 };
-
-module.exports = authenticate;
+const admin = (req, res, next) =>{
+    if(req.user.role !== 'admin'){
+        res.status(403).json("Admin rights required");
+}
+next();
+}
+module.exports = {authenticate, admin};
