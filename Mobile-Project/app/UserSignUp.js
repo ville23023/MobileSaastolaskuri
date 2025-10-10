@@ -119,30 +119,31 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 10,
     textAlign: 'center',
-    color: '#ffefdfcc'
+    color: '#ECF3FB',
   },
   subtitle: {
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 5,
-    color: 'rgba(255, 255, 255, 0.8)'
+    color: '#D5DEE9',
   },
   loginHeader: {
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
-    color: '#ffefdfcc'
+    color: '#D9CDB7',
   },
   input: {
     width: '80%',
-    backgroundColor: '#e6e6e6',
+    backgroundColor: '#DBF1FB',
     padding: 12,
     borderRadius: 6,
     marginBottom: 12,
+    color: '#000',
   },
   button: {
-    backgroundColor: '#7d6ef1',
+    backgroundColor: '#83C7EC',
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 6,
@@ -150,11 +151,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: '600',
-    color: 'rgba(0, 0, 0, 0.8)',
+    color: '#000',
   },
   registerText: {
     fontSize: 14,
-    color: '#ffefdfcc'
+    color: '#D1B9AA',
   },
   errorText: {
     color: 'red',

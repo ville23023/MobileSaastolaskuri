@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 100,
     trim: true,
-    unique: true,
     match: [/^\S+@\S+\.\S+$/],
   },
   password: {
@@ -26,6 +25,11 @@ const userSchema = new mongoose.Schema({
     maxlength: 16,
     trim: true,
     select: false
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
   },
 }, {timestamps: true});
 //Password salting and hashing

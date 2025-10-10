@@ -3,8 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const authenticate = require("../middleware/authUser");
-//Uusi Schema tässä
+const { authenticate, admin } = require("../middleware/authUser");
 const SavingGoal = require("../models/savingGoal");
 
 //Account creation
@@ -29,7 +28,7 @@ router.post("/api/login", async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: "Incorrect username or password" });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign({ userId: user._id, role: user.role}, process.env.JWT_SECRET_KEY, {
       expiresIn: "1h",
     });
     res.status(200).json({ message: "Login successful", token });
@@ -39,7 +38,7 @@ router.post("/api/login", async (req, res) => {
   }
 });
 //List all users
-router.get("/api/users", authenticate, async (req, res) => {
+router.get("/api/users", authenticate, admin, async (req, res) => {
   try {
     const result = await User.find();
     res.status(200).json({
@@ -53,7 +52,7 @@ router.get("/api/users", authenticate, async (req, res) => {
   }
 });
 //Find user by its ID
-router.get("/api/user/:id", async (req, res) => {
+router.get("/api/user/:id", authenticate, admin, async (req, res) => {
   const userId = req.params.id;
   try {
     const user = await User.findById(userId);
@@ -94,11 +93,35 @@ router.delete("/api/user-delete/:id", async (req, res) => {
     res.status(400).json("Something went wrong");
   }
 });
+// Create admin
+router.post('/api/create-admin', async (req, res) => {
+  try {
+    const { userName, email, password, secretKey } = req.body;
+    const existingUser = await User.findOne({ userName });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists"});
+    }
+    if (secretKey !== process.env.ADMIN_CREATION_SECRET) {
+      return res.status(403).json({ error:"Invalid secret key"});
+    }
+      const admin = await User.create({
+      userName,
+      email,
+      password,
+      role: 'admin'
+    });
+    res.status(201).json({ message:"Admin user created successfully"});
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error:"Something went wrong"});
+  }
+});
 //Test account creation
 router.post("/api/test_user_creation", async (req, res) => {
   try {
     const test_user = await User.create({
       userName: "testi-ukko",
+      email: "testi@luukku.com",
       password: "password123",
     });
     res.status(201).json("Test user created");

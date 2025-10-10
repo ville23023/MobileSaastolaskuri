@@ -89,7 +89,7 @@ export default function UserProfile() {
           <Text style={styles.buttonText}>Tallenna</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace("/TÄYTÄ TÄHÄN ROUTE (HOMEPAGE)")}>
+        <TouchableOpacity onPress={() => router.replace("/Home")}>
           <Text style={styles.registerText}>← Takaisin kotiin</Text>
         </TouchableOpacity>
       </View>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    backgroundColor: "#7d6ef1",
+    backgroundColor: "#83C7EC",
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 6,
