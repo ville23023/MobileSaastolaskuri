@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function UserLogin() {
 
@@ -10,7 +11,7 @@ export default function UserLogin() {
 
   const router = useRouter();
 
-  const checkInputText = () =>{
+  const checkInputText = async() => {
     if(!userName.trim()){
       alert("Enter username!");
       return;
@@ -19,7 +20,29 @@ export default function UserLogin() {
       alert("Enter password!");
       return;
     }
-    login();
+    try {
+      const response = await fetch("http://10.254.150.246:3000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userName, password }),
+      });
+
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson ? await response.json() : {};
+
+      if (response.ok && data.token) {
+        await AsyncStorage.setItem("token", data.token);
+        login();
+      } else {
+        setErrorMessage(data.error || "Invalid username or password");
+      }
+    } catch (err) {
+      setErrorMessage("Network error. Please try again.");
+    }
   }
 
   const createUser = () =>{
