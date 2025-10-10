@@ -38,7 +38,28 @@ export default function UserSignUp() {
       setErrorMessage("Passwords do not match.");
       return; 
     }
-    router.push("/UserLogin")
+    try {
+      const response = await fetch("http://10.254.150.246:3000/api/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userName: username, email, password }),
+      });
+
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson ? await response.json() : {};
+
+      if (response.ok) {
+        router.push("/UserLogin")
+      } else {
+        setErrorMessage(data.error || "Signup failed");
+      }
+    } catch (err) {
+      setErrorMessage("Network error. Please try again.");
+    }  
   }
 
   return (
