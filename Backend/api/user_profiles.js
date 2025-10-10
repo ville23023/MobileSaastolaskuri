@@ -3,7 +3,8 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const {authenticate, admin} = require("../middleware/authUser");
+const { authenticate, admin } = require("../middleware/authUser");
+const SavingGoal = require("../models/savingGoal");
 
 //Account creation
 router.post("/api/sign-up", async (req, res) => {
