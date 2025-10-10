@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const authenticate = require("../middleware/authUser");
+//Uusi Schema tässä
+const SavingGoal = require("../models/savingGoal");
 
 //Account creation
 router.post("/api/sign-up", async (req, res) => {
