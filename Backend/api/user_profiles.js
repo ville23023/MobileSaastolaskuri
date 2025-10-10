@@ -9,7 +9,11 @@ const SavingGoal = require("../models/savingGoal");
 //Account creation
 router.post("/api/sign-up", async (req, res) => {
   try {
-    const result = await User.create(req.body);
+    const {userName, email, password} = req.body;
+    const result = await User.create({
+      userName, 
+      email, 
+      password});
     res.status(201).json({ message: "Account created successfully" });
   } catch (error) {
     console.log(error);
