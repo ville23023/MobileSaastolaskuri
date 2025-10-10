@@ -9,7 +9,11 @@ const SavingGoal = require("../models/savingGoal");
 //Account creation
 router.post("/api/sign-up", async (req, res) => {
   try {
-    const result = await User.create(req.body);
+    const {userName, email, password} = req.body;
+    const result = await User.create({
+      userName, 
+      email, 
+      password});
     res.status(201).json({ message: "Account created successfully" });
   } catch (error) {
     console.log(error);
@@ -93,29 +97,29 @@ router.delete("/api/user-delete/:id", async (req, res) => {
     res.status(400).json("Something went wrong");
   }
 });
-// Create admin
-router.post('/api/create-admin', async (req, res) => {
-  try {
-    const { userName, email, password, secretKey } = req.body;
-    const existingUser = await User.findOne({ userName });
-    if (existingUser) {
-      return res.status(400).json({ error: "Username already exists"});
-    }
-    if (secretKey !== process.env.ADMIN_CREATION_SECRET) {
-      return res.status(403).json({ error:"Invalid secret key"});
-    }
-      const admin = await User.create({
-      userName,
-      email,
-      password,
-      role: 'admin'
-    });
-    res.status(201).json({ message:"Admin user created successfully"});
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ error:"Something went wrong"});
-  }
-});
+// Create primary admin, for one-time use only
+// router.post('/api/create-admin', async (req, res) => {
+//   try {
+//     const { secretKey } = req.body;
+//     const existingUser = await User.findOne({ userName: process.env.ADMIN_USERNAME});
+//     if (existingUser) {
+//       return res.status(400).json({ error: "Username already exists"});
+//     }
+//     if (secretKey !== process.env.ADMIN_CREATION_SECRET) {
+//       return res.status(403).json({ error:"Invalid secret key"});
+//     }
+//       const admin = await User.create({
+//         userName: process.env.ADMIN_USERNAME,
+//         email: process.env.ADMIN_EMAIL,
+//         password: process.env.ADMIN_PASSWORD,
+//         role: 'admin'
+//     });
+//     res.status(201).json({ message:"Admin user created successfully"});
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).json({ error:"Something went wrong"});
+//   }
+// });
 //Test account creation
 router.post("/api/test_user_creation", async (req, res) => {
   try {
