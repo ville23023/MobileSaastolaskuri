@@ -13,7 +13,8 @@ router.post("/api/sign-up", async (req, res) => {
     const result = await User.create({
       userName, 
       email, 
-      password});
+      password,
+    });
     res.status(201).json({ message: "Account created successfully" });
   } catch (error) {
     console.log(error);
