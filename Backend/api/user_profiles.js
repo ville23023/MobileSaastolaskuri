@@ -135,5 +135,40 @@ router.post("/api/test_user_creation", async (req, res) => {
     res.status(400).json("Something went wrong");
   }
 });
+//Saving goal creation
+router.post("/api/create_saving_goal", authenticate, async (req, res)=>{
+  try{
+    const { goalName, targetAmount, startDate, endDate } = req.body;
+    const NewSavingGoal = new SavingGoal({
+      ...req.body,
+      user: req.user.userId});
+    const savedGoal = await NewSavingGoal.save()
+    res.status(201).json({ message: "Goal created successfully" })
+  }catch (error){
+    console.log(error);
+    res.status(400).send("Something went wrong");
+  }
+});
+//Saving Goal details
+router.get("/api/saving_goal_details/:id", authenticate, async(req, res)=>{
+  const goalId = req.params.id;
+  try{
+    const goal = await SavingGoal.findOne({ _id: goalId, user:req.user.userId });
+    res.status(200).json(goal);
+  }catch (error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+});
+//Lists all Saving goals
+router.get("/api/all_saving_goals", authenticate, async(req, res) =>{
+  try{
+    const result = await SavingGoal.find({ user: req.user.userId });
+    res.status(200).json(result);
+  }catch (error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+})
 
 module.exports = router;

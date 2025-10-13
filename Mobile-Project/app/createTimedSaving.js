@@ -77,20 +77,26 @@ export default function CreateTimedSaving(){
     // setWeekly("");
   }
 
-  const createHandler = () =>{
+  const createHandler = async () =>{
+    try{
     let newGoal = createSavingGoal()
     console.log(newGoal);
-    clearInputs();
-    router.replace({
-      pathname: "/timeBasedSaving",
-      params: {
-        goal: newGoal.Goal,
-        selectedDate: newGoal.Ends,
-        targetAmount: newGoal.TargetAmount,
-        startDate: newGoal.Start,
-      }
+    let response = await fetch("http//10.0.2.2:3000/api/create_saving_goal",{
+      method:"POST",
+      headers:{
+        "Content-type":"application/json"
+      },
+      body:JSON.stringify(newGoal)
     });
+    let json = await response.json();
+    console.log(json);
+    clearInputs();
+    router.replace("/Home");
+    }catch(error){
+      console.log(error);
+    }
   }
+
     return(
         <SafeAreaView style={styles.container}>
 
