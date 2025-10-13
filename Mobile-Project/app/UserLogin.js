@@ -3,11 +3,13 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwtDecode from "jwt-decode";
 
 export default function UserLogin() {
 
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
   const router = useRouter();
@@ -37,7 +39,13 @@ export default function UserLogin() {
 
       if (response.ok && data.token) {
         await AsyncStorage.setItem("token", data.token);
-        login();
+        
+      const decoded = JSON.parse(atob(data.token.split('.')[1]));
+      if (decoded.role === 'admin') {
+          router.replace("/adminPanel");
+        } else {
+          login();
+        }
       } else {
         setErrorMessage(data.error || "Invalid username or password");
       }
@@ -73,6 +81,10 @@ export default function UserLogin() {
         <Text style={styles.subtitle}>Sign up and start planning today.</Text>
 
         <Text style={styles.loginHeader}>Login</Text>
+
+        {errorMessage !== "" && (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        )} 
 
         <TextInput 
           style={styles.input} 
@@ -157,5 +169,10 @@ const styles = StyleSheet.create({
   registerText: {
     fontSize: 14,
     color: '#D1B9AA',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontWeight: '600',
   },
 });
