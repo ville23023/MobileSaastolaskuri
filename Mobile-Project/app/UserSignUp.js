@@ -10,6 +10,7 @@ export default function UserSignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const router = useRouter();
 
   const validateForm = async() => {
@@ -39,7 +40,7 @@ export default function UserSignUp() {
       return; 
     }
     try {
-      const response = await fetch("http://10.254.150.246:3000/api/sign-up", {
+      const response = await fetch(`${API_URL}:3000/api/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
