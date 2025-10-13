@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-nativ
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CreateTimedSaving(){
   const [goal, setGoal] = useState("");
@@ -12,7 +13,24 @@ export default function CreateTimedSaving(){
   const [endDate, setEndDate] = useState(new Date());
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState("");
+  const [token, setToken] = useState(null);
   const router = useRouter();
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+  useEffect(()=>{
+    const getToken = async () =>{
+      let storedToken = null;
+      try{
+        storedToken = await AsyncStorage.getItem("token");
+      }catch (error){
+        console.log("Fetching token error", error);
+      }
+      if(storedToken !== null){
+        setToken(storedToken);
+      }
+    }
+    getToken()
+  },[])
 
   const dateChangeHandler = (event, selectedDate) =>{
     setOpen(false);
@@ -46,11 +64,11 @@ export default function CreateTimedSaving(){
 
   const createSavingGoal = () =>{
     return{
-      "Goal":goal,
-      "TargetAmount":targetAmount,
+      "goalName":goal,
+      "targetAmount":targetAmount,
       //"WeeklyAmount":weekly,
-      "Ends":endDate.toISOString().split("T")[0],
-      "Start":startDate.toISOString().split("T")[0],
+      "endDate":endDate.toISOString().split("T")[0],
+      "startDate":startDate.toISOString().split("T")[0],
     }
   }
 
@@ -78,22 +96,33 @@ export default function CreateTimedSaving(){
   }
 
   const createHandler = async () =>{
+
+    if(!token){
+      alert("Token not found! Please login again");
+      return;
+    }
     try{
     let newGoal = createSavingGoal()
     console.log(newGoal);
-    let response = await fetch("http//10.0.2.2:3000/api/create_saving_goal",{
+    let response = await fetch(`${API_URL}:3000/api/create_saving_goal`,{
       method:"POST",
       headers:{
-        "Content-type":"application/json"
+        "Content-type":"application/json",
+        'Authorization':`Bearer ${token}`,
       },
       body:JSON.stringify(newGoal)
     });
+    if(!response.ok){
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create goal");
+    }
     let json = await response.json();
     console.log(json);
     clearInputs();
     router.replace("/Home");
+
     }catch(error){
-      console.log(error);
+      console.log("Error creating goal",error.message);
     }
   }
 

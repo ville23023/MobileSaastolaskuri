@@ -8,6 +8,7 @@ export default function UserLogin() {
 
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
   const router = useRouter();
 
@@ -21,7 +22,7 @@ export default function UserLogin() {
       return;
     }
     try {
-      const response = await fetch("http://10.254.150.246:3000/api/login", {
+      const response = await fetch(`${API_URL}:3000/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
