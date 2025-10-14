@@ -1,20 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
   const router = useRouter();
-  const [savingsList, setSavingsList] = useState([
-    "Trip to Canary Island",
-    "New Car",
-    "New Computer",
-  ]);
+  const [savingsList, setSavingsList] = useState([]);
+  const [token, setToken] = useState(null);
+  const [userName, setUserName] = useState("");
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const params = useLocalSearchParams();
+
+  useEffect(() =>{
+    const getTokenAndFetchList = async() =>{
+      let storedToken = null;
+      try{
+        storedToken = await AsyncStorage.getItem("token");
+      }catch (error){
+        console.log("Fething token error", error);
+      }
+      if (storedToken !== null){
+        setToken(storedToken);
+        getList(storedToken)
+      }
+    }
+    getTokenAndFetchList()
+  }, [])
+
+  useEffect(() =>{
+    if(params.userName){
+      setUserName(params.userName);
+    }
+  },[params])
 
   const pressHandler = () => {
     console.log("item pressed");
   };
+
+  const getList = async (token) =>{
+
+    if (!token){
+      alert("Token not found! Please login again");
+      return;
+    }
+    try{
+      let response = await fetch(`${API_URL}:3000/api/all_saving_goals`,{
+        headers:{
+          "Authorization":`Bearer ${token}`,
+        }
+      });
+      if(!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      let json = await response.json();
+      setSavingsList(json);
+    }catch (error){
+      console.log("Error fetchin list", error.message);
+    }
+  }
 
   return (
     <ImageBackground
@@ -24,7 +69,7 @@ export default function Home() {
     >
       <SafeAreaView style={styles.container}>
         <View style={styles.topSection}>
-          <Text style={styles.welcomeText}>Welcome "Username"!</Text>
+          <Text style={styles.welcomeText}>Welcome {userName}!</Text>
         </View>
 
         <View style={styles.middleSection}>
@@ -38,7 +83,7 @@ export default function Home() {
                 <TouchableOpacity activeOpacity={0.8} onPress={pressHandler}>
                   <View>
                     <Text style={styles.itemStyle}>
-                      {item.index + 1}) {item.item}
+                      {item.index + 1}) {item.item.goalName}
                     </Text>
                   </View>
                 </TouchableOpacity>

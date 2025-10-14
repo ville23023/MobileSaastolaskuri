@@ -163,7 +163,7 @@ router.get("/api/saving_goal_details/:id", authenticate, async(req, res)=>{
 //Lists all Saving goals
 router.get("/api/all_saving_goals", authenticate, async(req, res) =>{
   try{
-    const result = await SavingGoal.find({ user: req.user.userId });
+    const result = await SavingGoal.find({ user: req.user.userId }).populate({path:"user", select:["userName"]})
     res.status(200).json(result);
   }catch (error){
     console.log(error);
