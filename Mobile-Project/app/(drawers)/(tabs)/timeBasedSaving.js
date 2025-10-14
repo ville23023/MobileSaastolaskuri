@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from 'react-native-svg';
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function ProgressBar({ savingsPercentage }) {
     return (    
@@ -45,9 +46,18 @@ function DonutChart({ timeUp, goalAchieved, progress}) {
     </View>
     )
   }
-export default function TimeSavingDetails({ navigation }) {
-    const {goal, selectedDate, targetAmount, startDate} = useLocalSearchParams();
-    const newSelectedDate = new Date(selectedDate);
+export default function TimeSavingDetails() {
+    //const {goal, selectedDate, targetAmount, startDate} = useLocalSearchParams();
+    const [goal, setGoal] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [targetAmount, setTargetAmount] = useState("");
+    const params = useLocalSearchParams();
+    const [token, setToken] = useState(null);
+    const [id, setId] = useState("");
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+    const newSelectedDate = new Date(endDate);
     const newStartDate = new Date(startDate);
     const newTargetAmount = parseFloat(targetAmount);
     const [progress, setProgress] = useState(0);
@@ -56,6 +66,7 @@ export default function TimeSavingDetails({ navigation }) {
     const [savedAmount, setSavedAmount] = useState(0);
     const savingsPercentage = !isNaN(newTargetAmount) && newTargetAmount > 0 ? (savedAmount / newTargetAmount) * 100 : 0;
     const [input, setInput] = useState('');
+    
 
   useEffect(() => {
     const now = new Date();
@@ -73,7 +84,57 @@ export default function TimeSavingDetails({ navigation }) {
         setGoalAchieved(false);
       }
   }, 
-  [startDate, selectedDate, savedAmount, targetAmount]);
+  [startDate, endDate, savedAmount, targetAmount]);
+
+  useEffect(() =>{
+    const getToken = async() =>{
+      let storedToken = null;
+      try{
+        storedToken = await AsyncStorage.getItem("token");
+      }catch (error){
+        console.log("Fething token error", error);
+      }
+      if (storedToken !== null){
+        setToken(storedToken);
+      }
+    }
+    getToken()
+  }, [])
+
+  useEffect(() =>{
+    const fetchDetails = async() =>{
+      if(!token || !params.id){
+        return;
+      }
+      savingDetails(token, params.id);
+    }
+    fetchDetails()
+  }, [params.id, token])
+
+  const savingDetails = async (token, id) =>{
+    console.log("ID detailissa on ", id)
+    if(!token){
+      console.log("Token not found. Login again");
+      return;
+    }
+    try{
+      let response = await fetch(`${API_URL}:3000/api/saving_goal_details/${id}`,{
+        headers:{
+          "Authorization":`Bearer ${token}`,
+        }
+      });
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      let json = await response.json()
+      setGoal(json.goalName);
+      setTargetAmount(json.targetAmount);
+      setStartDate(json.startDate);
+      setEndDate(json.endDate);
+    }catch (error){
+      console.log("Error fetchin saving details", error.message);
+    }
+  }
 
     const inputHandler=()=>{
         const inputValue = parseFloat(input);

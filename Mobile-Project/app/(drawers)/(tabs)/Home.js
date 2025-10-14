@@ -35,8 +35,9 @@ export default function Home() {
     }
   },[params])
 
-  const pressHandler = () => {
-    console.log("item pressed");
+  const pressHandler = (id) => {
+    console.log("ID homessa on", id);
+    router.push({pathname:"/timeBasedSaving", params:{ id }})
   };
 
   const getList = async (token) =>{
@@ -80,7 +81,7 @@ export default function Home() {
               data={savingsList}
               keyExtractor={(item, index) => index.toString()}
               renderItem={(item) => (
-                <TouchableOpacity activeOpacity={0.8} onPress={pressHandler}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() =>pressHandler(item.item._id)}>
                   <View>
                     <Text style={styles.itemStyle}>
                       {item.index + 1}) {item.item.goalName}
