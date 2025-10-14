@@ -101,24 +101,24 @@ router.delete("/api/user-delete/:id", authenticate, admin, async (req, res) => {
 // Create primary admin, for one-time use only
 // router.post('/api/create-admin', async (req, res) => {
 //   try {
-//     const { secretKey } = req.body;
-//     const existingUser = await User.findOne({ userName: process.env.ADMIN_USERNAME});
+//     const { userName, email, password, secretKey } = req.body;
+//     const existingUser = await User.findOne({userName});
 //     if (existingUser) {
-//       return res.status(400).json({ error: "Username already exists"});
+//       return res.status(400).json({error: "Username already exists"});
 //     }
 //     if (secretKey !== process.env.ADMIN_CREATION_SECRET) {
-//       return res.status(403).json({ error:"Invalid secret key"});
+//       return res.status(403).json({error:"Invalid secret key"});
 //     }
 //       const admin = await User.create({
-//         userName: process.env.ADMIN_USERNAME,
-//         email: process.env.ADMIN_EMAIL,
-//         password: process.env.ADMIN_PASSWORD,
+//         userName,
+//         email,
+//         password,
 //         role: 'admin'
 //     });
-//     res.status(201).json({ message:"Admin user created successfully"});
+//     res.status(201).json({message:"Admin user created successfully"});
 //   } catch (error) {
 //     console.log(error);
-//     res.status(400).json({ error:"Something went wrong"});
+//     res.status(400).json({error:"Something went wrong"});
 //   }
 // });
 //Test account creation
