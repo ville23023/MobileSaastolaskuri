@@ -108,7 +108,7 @@ export default function CreateTimedSaving(){
       method:"POST",
       headers:{
         "Content-type":"application/json",
-        'Authorization':`Bearer ${token}`,
+        "Authorization":`Bearer ${token}`,
       },
       body:JSON.stringify(newGoal)
     });

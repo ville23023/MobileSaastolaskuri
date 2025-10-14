@@ -54,17 +54,8 @@ export default function UserLogin() {
     }
   }
 
-  const createUser = () =>{
-    return{
-      "Username": userName,
-      "Password": password,
-    }
-  }
-
   const login = () =>{
-    let user = createUser();
-    console.log(user);
-    router.replace("/Home");
+    router.replace({pathname:"/Home", params:{ userName }});
   }
 
   return (
