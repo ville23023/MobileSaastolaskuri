@@ -1,128 +1,213 @@
-import { Button, StyleSheet, Text, View, TextInput } from 'react-native';
+import { Button, StyleSheet, Text, View, TextInput, ImageBackground, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 function ProgressBar({ savingsPercentage }) {
-    return (     
-        <View style={styles.grayBackground}>
-          <View style={[styles.greenFill, { width: `${savingsPercentage}%` }]}></View>
-          <Text style={styles.percentageSaved}>{savingsPercentage.toFixed(2)}% saved</Text>
-        </View>
-    );
-  }
-
-export default function FreeSaving({ navigation }) {
-    const {goal, targetAmount} = useLocalSearchParams();
-    const [savedAmount, setSavedAmount] = useState(0);
-    const savingsPercentage = !isNaN(targetAmount) && targetAmount > 0 ? (savedAmount / targetAmount) * 100 : 0;
-    const [goalAchieved, setGoalAchieved] = useState(false); 
-    const [input, setInput] = useState('');
-
-useEffect(() => {
-    if (savedAmount >= targetAmount) {
-        setGoalAchieved(true);
-    } else {
-        setGoalAchieved(false);
-      }
-    }, [savedAmount, targetAmount]);
-
-const inputHandler=()=>{
-    const inputValue = parseFloat(input);
-    if (!isNaN(inputValue)) {
-        setSavedAmount(prev => prev + inputValue)
-        setInput('');
-  }}
   return (
-    <SafeAreaView style={styles.container}>
-
-      <View>
-        <Text style={{fontWeight: '600', fontSize: 20,}}>{goal}</Text>
-      </View>
-        
-      <View style={styles.goalAchieved}>
-        {goalAchieved ? (
-          <Text style={{fontWeight: '400', fontSize: 18, textAlign: 'center'}}>
-            Congratulations!{'\n'}You have achieved your savings goal!
-          </Text> 
-          ) :  null}
-      </View>
-
-      <View style={styles.savingsSummaryRow}>
-        <View style={styles.savingsSummaryItem}>
-          <Text style={styles.titleText}>Savings so far</Text> 
-          <Text style={styles.text}>{savedAmount}</Text>
-        </View>
-        <View style={styles.savingsSummaryItem}>
-          <Text style={styles.titleText}>Target amount</Text>
-          <Text style={styles.text}>{targetAmount}</Text>
-        </View>
-      </View>
-
-      <ProgressBar savingsPercentage = {savingsPercentage} />
-
-      <View style={styles.savedAmount}>
-        <Text style={styles.titleText}>Enter saved amount:</Text>
-        <TextInput style={styles.text}
-          value={input}
-          onChangeText={setInput}/>
-        <Button title='Save' onPress={inputHandler}/>
-      </View>
-    </SafeAreaView>
-        
+    <View style={styles.progressContainer}>
+      <View style={[styles.progressFill, { width: `${savingsPercentage}%` }]} />
+      <Text style={styles.progressText}>{savingsPercentage.toFixed(2)}% saved</Text>
+    </View>
   );
 }
+
+export default function FreeSaving() {
+  const router = useRouter();
+  const { goal, targetAmount } = useLocalSearchParams();
+  const [savedAmount, setSavedAmount] = useState(0);
+  const [input, setInput] = useState('');
+  const [goalAchieved, setGoalAchieved] = useState(false);
+
+  const savingsPercentage =
+    !isNaN(targetAmount) && targetAmount > 0
+      ? (savedAmount / targetAmount) * 100
+      : 0;
+
+  useEffect(() => {
+    setGoalAchieved(savedAmount >= targetAmount);
+  }, [savedAmount, targetAmount]);
+
+  const inputHandler = () => {
+    const inputValue = parseFloat(input);
+    if (!isNaN(inputValue)) {
+      setSavedAmount((prev) => prev + inputValue);
+      setInput('');
+    }
+  };
+
+  return (
+    <ImageBackground
+      source={require("../../../assets/background3.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.container}>
+        <View style={styles.topSection}>
+          <Text style={styles.goalTitle}>{goal}</Text>
+        </View>
+
+        {goalAchieved && (
+          <View style={styles.messageBox}>
+            <Text style={styles.congratsText}>
+              Congratulations!{'\n'}You’ve achieved your savings goal!
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.middleSection}>
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryItem}>
+              <Text style={styles.labelText}>Savings so far</Text>
+              <Text style={styles.valueBox}>{savedAmount}</Text>
+            </View>
+            <View style={styles.summaryItem}>
+              <Text style={styles.labelText}>Target amount</Text>
+              <Text style={styles.valueBox}>{targetAmount}</Text>
+            </View>
+          </View>
+
+          <ProgressBar savingsPercentage={savingsPercentage} />
+        </View>
+
+        <View style={styles.bottomSection}>
+          <Text style={styles.labelText}>Enter saved amount:</Text>
+          <TextInput
+            style={styles.input}
+            value={input}
+            onChangeText={setInput}
+            keyboardType="numeric"
+          />
+          <TouchableOpacity activeOpacity={0.8} style={styles.customButton} onPress={inputHandler}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={[styles.customButton, { backgroundColor: "#E9E4DF", marginTop: 10 }]}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.buttonText, { color: "#000" }]}>Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
+  );
+}
+
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 30,
-    },
-    goalAchieved: {
-        width: '80%',
-    },
-    savingsSummaryRow: {
-        flexDirection: "row",
-        gap: 20,
-        justifyContent: 'center',
-      },
-      savingsSummaryItem: {
-        gap: 10,
-        width: '30%',
-      },
-      titleText: {  
-        textAlign: 'center',
-        fontWeight: '400', 
-        fontSize: 16,
-      },
-      text: { 
-        textAlign: 'center',
-        backgroundColor: '#e5e5e5',
-        padding: 8, 
-        borderRadius: 4,
-        fontSize: 16,
-        fontWeight: '450',
-      },
-      grayBackground: {
-        height: 40,
-        width: '65%',
-        backgroundColor: '#e5e5e5',
-        overflow: 'hidden',
-        position: 'relative',
-        justifyContent: "center",
-      },
-      greenFill: {
-        height: '100%',
-        backgroundColor: '#2ecc71',
-        position: 'absolute',
-      },
-      percentageSaved: {
-        fontSize: 16,
-        textAlign: 'center',
-      },
-      savedAmount: {
-        gap: 10,
-      },
-  });
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+  },
+  topSection: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  goalTitle: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#ffefdfcc",
+    textAlign: "center",
+  },
+  messageBox: {
+    backgroundColor: "rgba(255, 239, 223, 0.2)",
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  congratsText: {
+    fontSize: 18,
+    textAlign: "center",
+    color: "#D5DEE9",
+  },
+  middleSection: {
+    width: "90%",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginBottom: 20,
+  },
+  summaryItem: {
+    alignItems: "center",
+    width: "40%",
+  },
+  labelText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#ffefdfcc",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  valueBox: {
+    backgroundColor: "#E9E4DF",
+    color: "#000",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    fontSize: 16,
+    textAlign: "center",
+    minWidth: 60,
+  },
+  progressContainer: {
+    height: 40,
+    width: "80%",
+    backgroundColor: "#E9E4DF",
+    borderRadius: 8,
+    overflow: "hidden",
+    justifyContent: "center",
+    position: "relative",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#83C7EC",
+    position: "absolute",
+    left: 0,
+  },
+  progressText: {
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "center",
+    color: "#000",
+  },
+  bottomSection: {
+    alignItems: "center",
+    width: "80%",
+  },
+  input: {
+    backgroundColor: "#E9E4DF",
+    color: "#000",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    fontSize: 16,
+    textAlign: "center",
+    width: "100%",
+  },
+  customButton: {
+    backgroundColor: "#83C7EC",
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    marginTop: 10,
+    borderColor: "#7b3e3eff",
+    borderWidth: 2,
+    alignItems: "center",
+  },
+  buttonText: {
+    fontWeight: "600",
+    color: "rgba(0, 0, 0, 0.8)",
+  },
+});

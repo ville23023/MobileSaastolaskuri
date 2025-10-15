@@ -1,220 +1,235 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function CreateTimedSaving(){
+export default function CreateTimedSaving() {
   const [goal, setGoal] = useState("");
-  const [targetAmount, setTargetAmount] = useState(0);
-  // const [weekly, setWeekly] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const [mode, setMode] = useState("");
   const [token, setToken] = useState(null);
   const router = useRouter();
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-  useEffect(()=>{
-    const getToken = async () =>{
-      let storedToken = null;
-      try{
-        storedToken = await AsyncStorage.getItem("token");
-      }catch (error){
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        if (storedToken) setToken(storedToken);
+      } catch (error) {
         console.log("Fetching token error", error);
       }
-      if(storedToken !== null){
-        setToken(storedToken);
-      }
-    }
-    getToken()
-  },[])
+    };
+    getToken();
+  }, []);
 
-  const dateChangeHandler = (event, selectedDate) =>{
+  const dateChangeHandler = (event, selectedDate) => {
     setOpen(false);
-    if (event.type === 'set' && selectedDate) {
-      if (mode === "start") {
-        setStartDate(selectedDate);
-      } else if (mode === "end") {
-        setEndDate(selectedDate);
-      }
+    if (event.type === "set" && selectedDate) {
+      if (mode === "start") setStartDate(selectedDate);
+      else if (mode === "end") setEndDate(selectedDate);
     }
-    setTimeout(() => setOpen(false), 0);
     setMode("");
-  }
+  };
 
-  const showMode = (whichDate) =>{
+  const showMode = (whichDate) => {
     setMode(whichDate);
     setOpen(true);
-  }
+  };
 
-  const goalHandler = (goal) =>{
-    setGoal(goal);
-  }
+  const createSavingGoal = () => ({
+    goalName: goal,
+    targetAmount,
+    startDate: startDate.toISOString().split("T")[0],
+    endDate: endDate.toISOString().split("T")[0],
+  });
 
-  const targetAmountHandler = (targetAmount) =>{
-    setTargetAmount(targetAmount)
-  }
-  
-  // const weeklyAmountHandler = (weeklyAmount) =>{
-  //   setWeekly(weeklyAmount)
-  // }
-
-  const createSavingGoal = () =>{
-    return{
-      "goalName":goal,
-      "targetAmount":targetAmount,
-      //"WeeklyAmount":weekly,
-      "endDate":endDate.toISOString().split("T")[0],
-      "startDate":startDate.toISOString().split("T")[0],
-    }
-  }
-
-  const checkInputText = () =>{
-    if(!goal.trim()){
-      alert("Please enter name of your Goal");
+  const checkInputText = () => {
+    if (!goal.trim()) {
+      alert("Please enter name of your goal");
       return;
     }
-
-    if(!targetAmount.trim()){
+    if (!targetAmount.trim()) {
       alert("Please enter target amount!");
       return;
     }
-    // if(!weekly.trim()){
-    //   alert("Please enter weekly saving amount");
-    //   return;
-    // }
     createHandler();
-  }
+  };
 
-  const clearInputs = () =>{
+  const clearInputs = () => {
     setGoal("");
     setTargetAmount("");
-    // setWeekly("");
-  }
+  };
 
-  const createHandler = async () =>{
-
-    if(!token){
+  const createHandler = async () => {
+    if (!token) {
       alert("Token not found! Please login again");
       return;
     }
-    try{
-    let newGoal = createSavingGoal()
-    console.log(newGoal);
-    let response = await fetch(`${API_URL}:3000/api/create_saving_goal`,{
-      method:"POST",
-      headers:{
-        "Content-type":"application/json",
-        "Authorization":`Bearer ${token}`,
-      },
-      body:JSON.stringify(newGoal)
-    });
-    if(!response.ok){
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to create goal");
+    try {
+      const newGoal = createSavingGoal();
+      const response = await fetch(`${API_URL}:3000/api/create_saving_goal`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newGoal),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create goal");
+      }
+      await response.json();
+      clearInputs();
+      router.replace("/Home");
+    } catch (error) {
+      console.log("Error creating goal", error.message);
     }
-    let json = await response.json();
-    console.log(json);
-    clearInputs();
-    router.replace("/Home");
+  };
 
-    }catch(error){
-      console.log("Error creating goal",error.message);
-    }
-  }
+  return (
+    <ImageBackground
+      source={require("../assets/background2.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.container}>
+        <View style={styles.formWrapper}>
+          <Text style={styles.headerText}>Timed Saving Plan</Text>
 
-    return(
-        <SafeAreaView style={styles.container}>
+          <View style={styles.inputSection}>
+            <Text style={styles.label}>Name your goal</Text>
+            <TextInput
+              placeholder="Your goal name here"
+              placeholderTextColor="rgba(0,0,0,0.4)"
+              onChangeText={setGoal}
+              value={goal}
+              style={styles.input}
+            />
+          </View>
 
-            <View style={styles.bottomSection}>
-              <Text>Timed saving plan</Text>
-              <View>
-                  <Text>Name your goal</Text>
-                  <TextInput placeholder="Your goal name here" onChangeText={goalHandler} style={styles.input}/>
-              </View>
+          <View style={styles.inputSection}>
+            <Text style={styles.label}>Target amount</Text>
+            <TextInput
+              placeholder="Target amount"
+              placeholderTextColor="rgba(0,0,0,0.4)"
+              onChangeText={setTargetAmount}
+              value={targetAmount}
+              keyboardType="numeric"
+              style={styles.input}
+            />
+          </View>
 
-              <View>
-                  <Text>Targer amount</Text>
-                  <TextInput placeholder="Target amount" onChangeText={targetAmountHandler} style={styles.input}/>
+          <TouchableOpacity style={styles.customButton} onPress={() => showMode("start")} activeOpacity={0.8}>
+            <Text style={styles.buttonText}>Choose start date</Text>
+          </TouchableOpacity>
+          <Text style={styles.dateText}>{startDate.toLocaleDateString("fi-FI")}</Text>
 
-                  {/* <Text>Weekly amount</Text>
-                  <TextInput placeholder="Weekly amount" onChangeText={weeklyAmountHandler} style={styles.input}/> */}
-              </View>
+          <TouchableOpacity style={styles.customButton} onPress={() => showMode("end")} activeOpacity={0.8}>
+            <Text style={styles.buttonText}>Choose end date</Text>
+          </TouchableOpacity>
+          <Text style={styles.dateText}>{endDate.toLocaleDateString("fi-FI")}</Text>
 
-              <TouchableOpacity title="Choose your start date" style={styles.customButton} onPress={()=>showMode("start")}>
-                <Text>Choose your start date</Text>
-              </TouchableOpacity>
-              <Text>{startDate.toLocaleDateString('fi-FI')}</Text>
+          {open && (
+            <DateTimePicker
+              value={mode === "start" ? startDate : endDate}
+              mode="date"
+              display="spinner"
+              locale="fi-FI"
+              onChange={dateChangeHandler}
+            />
+          )}
 
-              <TouchableOpacity title="Choose your end date" style={styles.customButton} onPress={()=>showMode("end")}>
-                <Text>Choose your end date</Text>
-              </TouchableOpacity>
-              <Text>{endDate.toLocaleDateString('fi-FI')}</Text>
-                {
-                  open && (
-                    <DateTimePicker
-                      value={mode === 'start' ? startDate : endDate}
-                      mode="date"
-                      display="spinner"
-                      locale="fi-FI"
-                      onChange={dateChangeHandler}
-                    />
-                  )}
+          <TouchableOpacity style={styles.customButton} onPress={checkInputText} activeOpacity={0.8}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
 
-              <View>
-                <TouchableOpacity style={styles.customButton} onPress={checkInputText}>
-                  <Text>Create</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-        </SafeAreaView>
-    )
+          <TouchableOpacity
+            style={[styles.customButton, { backgroundColor: "#E9E4DF", marginTop: 10 }]}
+            activeOpacity={0.8}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.buttonText, { color: "#000" }]}>Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
+  );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   container: {
     flex: 1,
-    alignItems: "center",
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  },
-  topSection: {
-    flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-  },
-  middleSection: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottomSection: {
-    flex: 1,
     alignItems: "center",
     padding: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
-  customButton: {
-    marginTop: 10,
-    padding: 15,
-    borderColor: "#83C7EC",
-    borderRadius: 8,
-    borderWidth: 2,
-    backgroundColor: "#D9CDB7",
+  formWrapper: {
+    width: "90%",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    padding: 20,
+  },
+  headerText: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#ffefdfcc",
+    marginBottom: 25,
+    textAlign: "center",
+  },
+  inputSection: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  label: {
+    color: "#ffefdfcc",
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 6,
   },
   input: {
-    borderWidth: 2,
-    borderRadius: 8,
-    borderColor: "#D1B9AA",
-    backgroundColor: "#DBF1FB",
-    padding: 10,
-    marginBottom: 10,
+    backgroundColor: "#E9E4DF",
     color: "#000",
-    width: 250,
-  },
-  text: {
-    color: "#ECF3FB",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     fontSize: 16,
-    marginBottom: 5,
+    borderWidth: 2,
+    borderColor: "#7b3e3eff",
+  },
+  customButton: {
+    backgroundColor: "#83C7EC",
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    borderColor: "#7b3e3eff",
+    borderWidth: 2,
+    alignItems: "center",
+    marginTop: 10,
+    width: "80%",
+  },
+  buttonText: {
+    fontWeight: "600",
+    color: "rgba(0, 0, 0, 0.8)",
+  },
+  dateText: {
+    color: "#ffefdfcc",
+    marginTop: 5,
+    marginBottom: 10,
+    fontSize: 16,
   },
 });

@@ -105,47 +105,49 @@ export default function Home() {
       style={styles.background}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topSection}>
-          <Text style={styles.welcomeText}>Welcome {userName}</Text>
-        </View>
+      <View style={styles.overlay}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.topSection}>
+            <Text style={styles.welcomeText}>Welcome {userName}</Text>
+          </View>
 
-        <View style={styles.middleSection}>
-          <Text style={styles.sectionHeader}>Your current saving plans!</Text>
+          <View style={styles.middleSection}>
+            <Text style={styles.sectionHeader}>Your current saving plans!</Text>
 
-          {savingsList.length > 0 ? (
-            <FlatList
-              data={savingsList}
-              keyExtractor={(item) => item._id.toString()}
-              renderItem={(item) => (
-                <TouchableOpacity activeOpacity={0.8} onLongPress={() =>deletePlan(item.item._id)} onPress={() =>pressHandler(item.item._id)}>
-                  <View>
-                    <Text style={styles.itemStyle}>
-                      {item.index + 1}) {item.item.goalName}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
-          ) : (
-            <Text style={styles.noItemsText}>
-              No savings created! Go make one!
-            </Text>
-          )}
-        </View>
+            {savingsList.length > 0 ? (
+              <FlatList
+                data={savingsList}
+                keyExtractor={(item) => item._id.toString()}
+                renderItem={(item) => (
+                  <TouchableOpacity activeOpacity={0.8} onLongPress={() =>deletePlan(item.item._id)} onPress={() =>pressHandler(item.item._id)}>
+                    <View>
+                      <Text style={styles.itemStyle}>
+                        {item.index + 1}) {item.item.goalName}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <Text style={styles.noItemsText}>
+                No savings created! Go make one!
+              </Text>
+            )}
+          </View>
 
-        <View style={styles.bottomSection}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.customButton}
-            onPress={() => router.push("/Create")}
-          >
-            <Text style={styles.buttonText}>Create new savings goal</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.bottomSection}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.customButton}
+              onPress={() => router.push("/Create")}
+            >
+              <Text style={styles.buttonText}>Create new savings goal</Text>
+            </TouchableOpacity>
+          </View>
 
-        <StatusBar style="auto" />
-      </SafeAreaView>
+          <StatusBar style="auto" />
+        </SafeAreaView>
+      </View>
     </ImageBackground>
   );
 }
@@ -161,7 +163,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+    overlay: {
+    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.8)",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   topSection: {
     flex: 1,
