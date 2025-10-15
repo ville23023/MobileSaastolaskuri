@@ -118,7 +118,7 @@ export default function TimeSavingDetails() {
       return;
     }
     try{
-      let response = await fetch(`${API_URL}:3000/api/saving_goal_details/${id}`,{
+      let response = await fetch(`${API_URL}:3000/api/saving_plan_details/${id}`,{
         headers:{
           "Authorization":`Bearer ${token}`,
         }

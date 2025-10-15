@@ -180,7 +180,7 @@ router.delete("/api/delete_saving_plan/:id", authenticate, async(req, res) =>{
   const savingPlan = req.params.id;
   try{
     const result = await SavingGoal.deleteOne({ _id: savingPlan, user: req.user.userId })
-    res.status(200).json("Saving plan deleted successfully");
+    res.status(200).json("Plan deteled successfully");
   } catch(error){
     console.log(error);
     res.status(400).json("Something went wrong");

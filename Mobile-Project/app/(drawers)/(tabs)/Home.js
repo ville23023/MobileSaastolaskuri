@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,7 +47,7 @@ export default function Home() {
       return;
     }
     try{
-      let response = await fetch(`${API_URL}:3000/api/all_saving_goals`,{
+      let response = await fetch(`${API_URL}:3000/api/all_saving_plans`,{
         headers:{
           "Authorization":`Bearer ${token}`,
         }
@@ -62,6 +62,43 @@ export default function Home() {
     }
   }
 
+  const deletePlan = (id) =>{
+    Alert.alert(
+      "Delete plan",
+      "Are you sure you want to delete this plan?",
+      [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {text: "Yes", onPress: async() =>{
+          try{
+            const response = await fetch(`${API_URL}:3000/api/delete_saving_plan/${id}`,{
+              method: "DELETE",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+              },
+          });
+          if (!response.ok){
+            throw new Error(`Response status: ${response.status}`);
+          } else {
+            Alert.alert(
+              "Plan deleted",
+              "Plan deleted successfully",
+            )
+          }
+          let json = await response.json();
+          console.log(json);
+          setSavingsList(currentList =>{
+            return currentList.filter(goal => goal._id !== id);
+          })
+          }catch (error){
+          console.log("Something went wrong", error.message);
+        }
+        }}
+      ])
+  }
+
   return (
     <ImageBackground
       source={require("../../../assets/background3.png")}
@@ -70,7 +107,7 @@ export default function Home() {
     >
       <SafeAreaView style={styles.container}>
         <View style={styles.topSection}>
-          <Text style={styles.welcomeText}>Welcome {userName}!</Text>
+          <Text style={styles.welcomeText}>Welcome {userName}</Text>
         </View>
 
         <View style={styles.middleSection}>
@@ -79,9 +116,9 @@ export default function Home() {
           {savingsList.length > 0 ? (
             <FlatList
               data={savingsList}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item._id.toString()}
               renderItem={(item) => (
-                <TouchableOpacity activeOpacity={0.8} onPress={() =>pressHandler(item.item._id)}>
+                <TouchableOpacity activeOpacity={0.8} onLongPress={() =>deletePlan(item.item._id)} onPress={() =>pressHandler(item.item._id)}>
                   <View>
                     <Text style={styles.itemStyle}>
                       {item.index + 1}) {item.item.goalName}
