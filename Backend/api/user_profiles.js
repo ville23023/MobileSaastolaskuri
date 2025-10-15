@@ -150,7 +150,7 @@ router.post("/api/create_saving_goal", authenticate, async (req, res)=>{
   }
 });
 //Saving Goal details
-router.get("/api/saving_goal_details/:id", authenticate, async(req, res)=>{
+router.get("/api/saving_plan_details/:id", authenticate, async(req, res)=>{
   const goalId = req.params.id;
   try{
     const goal = await SavingGoal.findOne({ _id: goalId, user:req.user.userId });
@@ -161,11 +161,43 @@ router.get("/api/saving_goal_details/:id", authenticate, async(req, res)=>{
   }
 });
 //Lists all Saving goals
-router.get("/api/all_saving_goals", authenticate, async(req, res) =>{
+router.get("/api/all_saving_plans", authenticate, async(req, res) =>{
   try{
     const result = await SavingGoal.find({ user: req.user.userId }).populate({path:"user", select:["userName"]})
     res.status(200).json(result);
   }catch (error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+})
+//Delete one saving plan
+router.delete("/api/delete_saving_plan/:id", authenticate, async(req, res) =>{
+  const savingPlan = req.params.id;
+  try{
+    const result = await SavingGoal.deleteOne({ _id: savingPlan, user: req.user.userId })
+    res.status(200).json("Saving plan deleted successfully");
+  } catch(error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+})
+//Edit saving plan
+router.patch("/api/edit_saving_plan/:id", authenticate, async(req, res)=>{
+  const planToUpdate = req.params.id;
+  const { goalName, targetAmount, startDate, endDate } = req.body;
+  try{
+    const plan = await SavingGoal.findOne({ _id: planToUpdate, user: req.user.userId })
+    if (!plan){
+      res.status(204).json("Plan not found");
+    }
+    if (goalName) plan.goalName = goalName;
+    if (targetAmount) plan.targetAmount = targetAmount;
+    if (startDate) plan.startDate = startDate;
+    if (endDate) plan.endDate = endDate;
+
+    await plan.save();
+    res.status(200).json("Edit completed");
+  } catch(error){
     console.log(error);
     res.status(400).json("Something went wrong");
   }
