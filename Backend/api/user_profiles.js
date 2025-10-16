@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { authenticate, admin } = require("../middleware/authUser");
 const SavingGoal = require("../models/savingGoal");
-
+const SavedAmount = require("../models/savedAmount");
 //Account creation
 router.post("/api/sign-up", async (req, res) => {
   try {
@@ -207,5 +207,69 @@ router.patch("/api/edit_saving_plan/:id", authenticate, async(req, res)=>{
     res.status(400).json("Something went wrong");
   }
 })
+// Saved amount creation
+router.post("/api/create_saved_amount", authenticate, async (req, res)=>{
+  try{
+    const { goal, savedAmount, date } = req.body;
+    const NewSavedAmount = new SavedAmount({
+      ...req.body,
+      user: req.user.userId});
+    const savedAmountEntry = await NewSavedAmount.save()
+    res.status(201).json({ message: "Saved amount added" })
+  }catch (error){
+    console.log(error);
+    res.status(400).send("Something went wrong");
+  }
+});
+// Get saved amount
+router.get("/api/saved_amount/:id", authenticate, async(req, res)=>{
+  const savedAmountId = req.params.id;
+  try{
+    const amount = await SavedAmount.findOne({ _id: savedAmountId, user:req.user.userId });
+    res.status(200).json(amount);
+  }catch (error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+});
+//Lists all Saved amounts
+router.get("/api/all_saved_amounts", authenticate, async(req, res) =>{
+  try{
+    const result = await SavedAmount.find({ user: req.user.userId }).populate({path:"user", select:["userName"]})
+    res.status(200).json(result);
+  }catch (error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+})
+// Delete one Saved amount
+router.delete("/api/delete_saved_amount/:id", authenticate, async(req, res) =>{
+  const savedAmount = req.params.id;
+  try{
+    const result = await SavedAmount.deleteOne({ _id: savedAmount, user: req.user.userId })
+    res.status(200).json("Amount deteled successfully");
+  } catch(error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+})
+// Update saved amount
+router.patch("/api/update_saved_amount/:id", authenticate, async(req, res)=>{
+  const updateAmount = req.params.id;
+  const { savedAmount, date } = req.body;
+  try{
+    const amount = await SavedAmount.findOne({ _id: updateAmount, user: req.user.userId })
+    if (!amount){
+      res.status(204).json("Amount not found");
+    }
+    if (savedAmount) amount.savedAmount = savedAmount;
+    if (date) amount.date = date;
 
+    await amount.save();
+    res.status(200).json("Amount edited successfully");
+  } catch(error){
+    console.log(error);
+    res.status(400).json("Something went wrong");
+  }
+})
 module.exports = router;
