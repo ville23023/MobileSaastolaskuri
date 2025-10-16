@@ -145,7 +145,7 @@ export default function TimeSavingDetails() {
       source={require("../../../assets/background3.png")}
       style={styles.background}
       resizeMode="cover"
-    >
+      >
       <SafeAreaView style={styles.container}>
         <Text style={styles.goalTitle}>{goal}</Text>
 
@@ -192,7 +192,7 @@ export default function TimeSavingDetails() {
 
         <ProgressBar savingsPercentage={savingsPercentage} />
 
-<View style={styles.bottomSection}>
+          <View style={styles.bottomSection}>
           <Text style={styles.labelText}>Enter saved amount:</Text>
           <TextInput
             style={styles.input}
@@ -219,7 +219,7 @@ export default function TimeSavingDetails() {
             <Text style={[styles.buttonText, { color: "#000" }]}>Back</Text>
           </TouchableOpacity>
         </View>
-        </View>
+        
       </SafeAreaView>
     </ImageBackground>
   );
