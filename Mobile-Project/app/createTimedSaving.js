@@ -110,6 +110,7 @@ export default function CreateTimedSaving() {
     } catch (error) {
       console.log("Error creating goal", error.message);
     }
+  }
     
   const editHandler = async () => {
     if (!token){
