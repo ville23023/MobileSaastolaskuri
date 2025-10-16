@@ -97,7 +97,6 @@ export default function TimeSavingDetails() {
   
  useEffect(() => {
     const fetchDetails = async () => {
-      // Tämä tarkistaa, että kaikki tarvittava on valmiina ennen kutsua
       if (!token || !params.id) {
         return;
       }
@@ -107,7 +106,7 @@ export default function TimeSavingDetails() {
   }, [params.id, token]);
 
   const savingDetails = async (token, id) => {
-    // HUOM: 'if(!token)' -tarkistus on poistettu, koska 'useEffect' hoitaa sen.
+    
     try {
       const response = await fetch(`${API_URL}:3000/api/saving_plan_details/${id}`, {
         headers: { 
