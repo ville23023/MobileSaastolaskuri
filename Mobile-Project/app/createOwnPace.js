@@ -1,20 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Create() {
   const [goal, setGoal] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
+  const [token, setToken] = useState(null);
   const router = useRouter();
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-  const goalHandler = (goal) => setGoal(goal);
-  const targetAmountHandler = (amount) => setTargetAmount(amount);
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        if (storedToken) setToken(storedToken);
+      } catch (error) {
+        console.log("Fetching token error", error);
+      }
+    };
+    getToken();
+  }, []);
 
   const createSavingGoal = () => ({
-    Goal: goal,
-    TargetAmount: targetAmount,
+    goalName: goal,
+    targetAmount: targetAmount,
   });
+
+  const clearInputs = () => {
+    setGoal("");
+    setTargetAmount("");
+  };
 
   const checkInputText = () => {
     if (!goal.trim()) {
@@ -28,21 +45,32 @@ export default function Create() {
     createHandler();
   };
 
-  const clearInputs = () => {
-    setGoal("");
-    setTargetAmount("");
-  };
 
-  const createHandler = () => {
-    const newGoal = createSavingGoal();
-    clearInputs();
-    router.replace({
-      pathname: "/freeSaving",
-      params: {
-        goal: newGoal.Goal,
-        targetAmount: newGoal.TargetAmount,
-      },
-    });
+  const createHandler = async () => {
+    if (!token){
+      alert("Token not found! Please login again");
+      return;
+    }
+    try {
+      const newGoal = createSavingGoal();
+      const response = await fetch(`${API_URL}:3000/api/create_saving_goal`,{
+        method:"POST",
+        headers: {
+          "Content-type":"application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(newGoal),
+      });
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      let json = response.json()
+      console.log(json);
+      clearInputs();
+      router.replace("/Home");
+    } catch (error){
+      console.log("Error creating plan", error.message);
+    }
   };
 
   return (
@@ -60,7 +88,7 @@ export default function Create() {
             <TextInput
               placeholder="Your goal name here"
               placeholderTextColor="rgba(0,0,0,0.4)"
-              onChangeText={goalHandler}
+              onChangeText={setGoal}
               value={goal}
               style={styles.input}
             />
@@ -71,7 +99,7 @@ export default function Create() {
             <TextInput
               placeholder="Target amount"
               placeholderTextColor="rgba(0,0,0,0.4)"
-              onChangeText={targetAmountHandler}
+              onChangeText={setTargetAmount}
               value={targetAmount}
               keyboardType="numeric"
               style={styles.input}

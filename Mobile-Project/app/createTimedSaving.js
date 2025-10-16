@@ -55,7 +55,7 @@ export default function CreateTimedSaving() {
 
   const createSavingGoal = () => ({
     goalName: goal,
-    targetAmount,
+    targetAmount: targetAmount,
     startDate: startDate.toISOString().split("T")[0],
     endDate: endDate.toISOString().split("T")[0],
   });
@@ -96,7 +96,7 @@ export default function CreateTimedSaving() {
         method: "POST",
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(newGoal),
       });
@@ -136,7 +136,7 @@ export default function CreateTimedSaving() {
       clearInputs();
       router.replace("/Home");
     } catch (error){
-      console.log("Error editing goal", error.message);
+      console.log("Error editing plan", error.message);
     }
   };
 
