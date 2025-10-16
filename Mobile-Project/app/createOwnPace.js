@@ -26,6 +26,8 @@ export default function Create() {
   const createSavingGoal = () => ({
     goalName: goal,
     targetAmount: targetAmount,
+    startDate: null,
+    endDate: null,
   });
 
   const clearInputs = () => {
@@ -64,7 +66,7 @@ export default function Create() {
       if (!response.ok){
         throw new Error(`Response status: ${response.status}`);
       }
-      let json = response.json()
+      let json = await response.json()
       console.log(json);
       clearInputs();
       router.replace("/Home");

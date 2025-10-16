@@ -35,7 +35,12 @@ export default function Home() {
     }
   },[params])
 
-  const pressHandler = (id) => {
+  const pressHandler = (id, startDate, endDate) => {
+    console.log(startDate, endDate);
+    if (!startDate || !endDate){
+      router.push({pathname:"/freeSaving", params:{ id }})
+      return;
+    }
     router.push({pathname:"/timeBasedSaving", params:{ id }})
   };
 
@@ -122,7 +127,7 @@ export default function Home() {
                 data={savingsList}
                 keyExtractor={(item) => item._id.toString()}
                 renderItem={(item) => (
-                  <TouchableOpacity activeOpacity={0.8} onLongPress={() =>deletePlan(item.item._id)} onPress={() =>pressHandler(item.item._id)}>
+                  <TouchableOpacity activeOpacity={0.8} onLongPress={() =>deletePlan(item.item._id)} onPress={() =>pressHandler(item.item._id, item.item.startDate, item.item.endDate)}>
                     <View>
                       <Text style={styles.itemStyle}>
                         {item.index + 1}) {item.item.goalName}

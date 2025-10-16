@@ -2,6 +2,7 @@ import { Button, StyleSheet, Text, View, TextInput, ImageBackground, TouchableOp
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function ProgressBar({ savingsPercentage }) {
   return (
@@ -14,7 +15,13 @@ function ProgressBar({ savingsPercentage }) {
 
 export default function FreeSaving() {
   const router = useRouter();
-  const { goal, targetAmount } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+  const [goal, setGoal] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [token, setToken] = useState(null);
+
   const [savedAmount, setSavedAmount] = useState(0);
   const [input, setInput] = useState('');
   const [goalAchieved, setGoalAchieved] = useState(false);
@@ -28,6 +35,31 @@ export default function FreeSaving() {
     setGoalAchieved(savedAmount >= targetAmount);
   }, [savedAmount, targetAmount]);
 
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        if (storedToken){
+          setToken(storedToken);
+        }
+      } catch (error) {
+        console.log("Fetching token error", error);
+      }
+    };
+    getToken();
+  }, []);
+
+  useEffect(() => {
+      const fetchDetails = async () => {
+        if (!token || !params.id) {
+          return;
+        }
+        await savingDetails(token, params.id);
+      };
+    fetchDetails();
+  }, [params.id, token]);
+  
+
   const inputHandler = () => {
     const inputValue = parseFloat(input);
     if (!isNaN(inputValue)) {
@@ -35,6 +67,32 @@ export default function FreeSaving() {
       setInput('');
     }
   };
+
+  const editHandler = (id, goal, targetAmount) => {
+    console.log("Tiedot ", id, goal, targetAmount);
+    router.push({
+      pathname: "/createOwnPace",
+      params: { id, goal, targetAmount }
+    });
+  };
+
+  const savingDetails = async (token, id) =>{
+    try{
+      const response = await fetch(`${API_URL}:3000/api/saving_plan_details/${id}`,{
+        headers:{
+          "Authorization":`Bearer ${token}`
+        }
+      });
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const json = await response.json();
+      setGoal(json.goalName);
+      setTargetAmount(json.targetAmount);
+    } catch (error){
+      console.log("Error fething saving details", error.message);
+    }
+  }
 
   return (
     <ImageBackground
@@ -80,6 +138,13 @@ export default function FreeSaving() {
           />
           <TouchableOpacity activeOpacity={0.8} style={styles.customButton} onPress={inputHandler}>
             <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.customButton} 
+            onPress={() => editHandler(params.id, goal, targetAmount)}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
