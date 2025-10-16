@@ -104,7 +104,8 @@ export default function CreateTimedSaving() {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to create goal");
       }
-      await response.json();
+      let json = await response.json();
+      console.log(json);
       clearInputs();
       router.replace("/Home");
     } catch (error) {

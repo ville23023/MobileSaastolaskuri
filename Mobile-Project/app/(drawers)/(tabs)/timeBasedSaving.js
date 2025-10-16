@@ -87,7 +87,9 @@ export default function TimeSavingDetails() {
     const getToken = async () => {
       try {
         const storedToken = await AsyncStorage.getItem("token");
-        if (storedToken) setToken(storedToken);
+        if (storedToken){
+          setToken(storedToken);
+        }
       } catch (error) {
         console.log("Fetching token error", error);
       }
@@ -109,11 +111,13 @@ export default function TimeSavingDetails() {
     
     try {
       const response = await fetch(`${API_URL}:3000/api/saving_plan_details/${id}`, {
-        headers: { 
+        headers:{ 
           "Authorization": `Bearer ${token}` 
         }
       });
-      if (!response.ok) throw new Error(`Response status: ${response.status}`);
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
       const json = await response.json();
       setGoal(json.goalName);
       setTargetAmount(json.targetAmount);
