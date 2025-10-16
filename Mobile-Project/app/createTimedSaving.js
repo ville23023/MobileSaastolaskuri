@@ -37,7 +37,7 @@ export default function CreateTimedSaving() {
       }
     };
     checkEditMode();
-  }, [params]);
+  }, []);
 
   const dateChangeHandler = (event, selectedDate) => {
     setOpen(false);
@@ -149,7 +149,6 @@ export default function CreateTimedSaving() {
     >
       <SafeAreaView style={styles.container}>
         <View style={styles.formWrapper}>
-          {/* Lisätään ehto otsikolle */}
           <Text style={styles.headerText}>
             {params.id ? "Edit Saving Plan" : "Timed Saving Plan"}
           </Text>

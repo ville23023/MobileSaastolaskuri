@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Create() {
@@ -10,6 +10,7 @@ export default function Create() {
   const [token, setToken] = useState(null);
   const router = useRouter();
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const params = useLocalSearchParams();
 
   useEffect(() => {
     const getToken = async () => {
@@ -22,6 +23,16 @@ export default function Create() {
     };
     getToken();
   }, []);
+
+  useEffect(() =>{
+    const checkEditMode = () =>{
+      if (params.id){
+        setGoal(params.goal);
+        setTargetAmount(params.targetAmount)
+      }
+    };
+    checkEditMode();
+  },[]);
 
   const createSavingGoal = () => ({
     goalName: goal,
@@ -44,9 +55,12 @@ export default function Create() {
       alert("Please enter target amount!");
       return;
     }
-    createHandler();
+    if (params.id){
+      editHandler()
+    } else {
+      createHandler();
+    }
   };
-
 
   const createHandler = async () => {
     if (!token){
@@ -75,6 +89,34 @@ export default function Create() {
     }
   };
 
+  const editHandler = async () =>{
+    if(!token){
+      alert("Token not found. Please login again");
+      return;
+    }
+    try {
+      let updatedId = params.id;
+      let editedGoal = createSavingGoal();
+      let response = await fetch(`${API_URL}:3000/api/edit_saving_plan/${updatedId}`,{
+        method:"PATCH",
+        headers:{
+          "Content-type":"application/json",
+          "Authorization":`Bearer ${token}`,
+        },
+        body:JSON.stringify(editedGoal)
+      });
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      let json = await response.json();
+      console.log(json);
+      clearInputs();
+      router.replace("/Home");
+    } catch (error){
+      console.log("Error editing plan", error.message);
+    }
+  }
+
   return (
     <ImageBackground
       source={require("../assets/background4.png")}
@@ -83,7 +125,8 @@ export default function Create() {
     >
       <SafeAreaView style={styles.container}>
         <View style={styles.formWrapper}>
-          <Text style={styles.headerText}>Create a New Saving Goal</Text>
+          <Text style={styles.headerText}>{params.id ? "Edit Saving Plan" : "Create a New Saving Goal"}
+          </Text>
 
           <View style={styles.inputSection}>
             <Text style={styles.label}>Name your goal</Text>
@@ -109,7 +152,7 @@ export default function Create() {
           </View>
 
           <TouchableOpacity style={styles.customButton} onPress={checkInputText} activeOpacity={0.8}>
-            <Text style={styles.buttonText}>Next</Text>
+            <Text style={styles.buttonText}>{params.id ? "Save Changes" : "Create"}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
