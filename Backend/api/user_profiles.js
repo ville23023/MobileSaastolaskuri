@@ -201,7 +201,7 @@ router.patch("/api/edit_saving_plan/:id", authenticate, async(req, res)=>{
     if (endDate) plan.endDate = endDate;
 
     await plan.save();
-    res.status(200).json("Edit completed");
+    res.status(200).json("Goal edited successfully");
   } catch(error){
     console.log(error);
     res.status(400).json("Something went wrong");

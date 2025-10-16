@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CreateTimedSaving(){
@@ -16,6 +16,7 @@ export default function CreateTimedSaving(){
   const [token, setToken] = useState(null);
   const router = useRouter();
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const params = useLocalSearchParams();
 
   useEffect(()=>{
     const getToken = async () =>{
@@ -30,6 +31,16 @@ export default function CreateTimedSaving(){
       }
     }
     getToken()
+  },[])
+
+  useEffect(() =>{
+      const isSelected = async () =>{
+        if (params.id){
+          setGoal(params.goal);
+          setTargetAmount(params.targetAmount);
+      }
+    }
+    isSelected();
   },[])
 
   const dateChangeHandler = (event, selectedDate) =>{
@@ -86,7 +97,11 @@ export default function CreateTimedSaving(){
     //   alert("Please enter weekly saving amount");
     //   return;
     // }
-    createHandler();
+    if (params.id){
+      editHandler();
+    } else {
+      createHandler();
+    }
   }
 
   const clearInputs = () =>{
@@ -126,6 +141,35 @@ export default function CreateTimedSaving(){
     }
   }
 
+  const editHandler = async () =>{
+
+    if (!token){
+      alert("Token not found. Please login again");
+      return;
+    }
+    try{
+      let updatedId = params.id;
+      let editedGoal = createSavingGoal()
+      let response = await fetch(`${API_URL}:3000/api/edit_saving_plan/${updatedId}`,{
+        method:"PATCH",
+        headers:{
+          "Content-type":"application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body:JSON.stringify(editedGoal)
+      });
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      let json = await response.json();
+      console.log(json);
+      clearInputs();
+      router.replace("/Home");
+    }catch (error){
+      console.log("Error editing goal", error.message);
+    }
+  }
+
     return(
         <SafeAreaView style={styles.container}>
 
@@ -133,12 +177,12 @@ export default function CreateTimedSaving(){
               <Text>Timed saving plan</Text>
               <View>
                   <Text>Name your goal</Text>
-                  <TextInput placeholder="Your goal name here" onChangeText={goalHandler} style={styles.input}/>
+                  <TextInput placeholder="Your goal name here" value={goal} onChangeText={goalHandler} style={styles.input}/>
               </View>
 
               <View>
                   <Text>Targer amount</Text>
-                  <TextInput placeholder="Target amount" onChangeText={targetAmountHandler} style={styles.input}/>
+                  <TextInput placeholder="Target amount" value={targetAmount} onChangeText={targetAmountHandler} style={styles.input}/>
 
                   {/* <Text>Weekly amount</Text>
                   <TextInput placeholder="Weekly amount" onChangeText={weeklyAmountHandler} style={styles.input}/> */}
@@ -165,9 +209,17 @@ export default function CreateTimedSaving(){
                   )}
 
               <View>
+              {!params.id ? (
                 <TouchableOpacity style={styles.customButton} onPress={checkInputText}>
                   <Text>Create</Text>
                 </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={styles.customButton} onPress={checkInputText}>
+                  <Text>
+                    Save
+                  </Text>
+                </TouchableOpacity>
+              )}
               </View>
             </View>
         </SafeAreaView>

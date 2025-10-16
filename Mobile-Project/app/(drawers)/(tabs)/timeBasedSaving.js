@@ -2,7 +2,7 @@ import { Button, StyleSheet, Text, View, TextInput } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from 'react-native-svg';
 import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function ProgressBar({ savingsPercentage }) {
@@ -54,8 +54,8 @@ export default function TimeSavingDetails() {
     const [targetAmount, setTargetAmount] = useState("");
     const params = useLocalSearchParams();
     const [token, setToken] = useState(null);
-    const [id, setId] = useState("");
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
+    const router = useRouter();
 
     const newSelectedDate = new Date(endDate);
     const newStartDate = new Date(startDate);
@@ -112,7 +112,6 @@ export default function TimeSavingDetails() {
   }, [params.id, token])
 
   const savingDetails = async (token, id) =>{
-    console.log("ID detailissa on ", id)
     if(!token){
       console.log("Token not found. Login again");
       return;
@@ -142,6 +141,11 @@ export default function TimeSavingDetails() {
         setSavedAmount(prev => prev + inputValue)
         setInput('');
     }}
+  
+  const editHandler = (id, goal, targetAmount, startDate, endDate) =>{
+    console.log("Tiedot ",id, goal, targetAmount, startDate, endDate);
+    router.push({pathname:"/createTimedSaving", params:{ id, goal, targetAmount, startDate, endDate }})
+  }
 
   return (
     <SafeAreaView style={styles.container}> 
@@ -193,6 +197,7 @@ export default function TimeSavingDetails() {
           value={input}
           onChangeText={setInput}/>
           <Button title='Save' onPress={inputHandler}/>
+          <Button title="Edit" onPress={()=>editHandler(params.id, goal, targetAmount, startDate, endDate)} />
         </View>
     </SafeAreaView>
         
