@@ -36,7 +36,6 @@ export default function Home() {
   },[params])
 
   const pressHandler = (id) => {
-    console.log("ID homessa on", id);
     router.push({pathname:"/timeBasedSaving", params:{ id }})
   };
 
@@ -94,6 +93,10 @@ export default function Home() {
           })
           }catch (error){
           console.log("Something went wrong", error.message);
+          Alert.alert(
+            "Delete error",
+            "Plan could not be deleted",
+          )
         }
         }}
       ])

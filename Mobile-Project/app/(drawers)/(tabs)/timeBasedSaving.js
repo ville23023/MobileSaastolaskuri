@@ -58,12 +58,14 @@ export default function TimeSavingDetails() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
-  const [savedAmount, setSavedAmount] = useState(0);
   const [token, setToken] = useState(null);
+  
+  const [savedAmount, setSavedAmount] = useState(0);
   const [input, setInput] = useState("");
   const [progress, setProgress] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
   const [goalAchieved, setGoalAchieved] = useState(false);
+
 
   const newSelectedDate = new Date(endDate);
   const newStartDate = new Date(startDate);
@@ -92,19 +94,25 @@ export default function TimeSavingDetails() {
     };
     getToken();
   }, []);
-
-  useEffect(() => {
+  
+ useEffect(() => {
     const fetchDetails = async () => {
-      if (!token || !params.id) return;
+      // Tämä tarkistaa, että kaikki tarvittava on valmiina ennen kutsua
+      if (!token || !params.id) {
+        return;
+      }
       await savingDetails(token, params.id);
     };
     fetchDetails();
   }, [params.id, token]);
 
   const savingDetails = async (token, id) => {
+    // HUOM: 'if(!token)' -tarkistus on poistettu, koska 'useEffect' hoitaa sen.
     try {
       const response = await fetch(`${API_URL}:3000/api/saving_plan_details/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          "Authorization": `Bearer ${token}` 
+        }
       });
       if (!response.ok) throw new Error(`Response status: ${response.status}`);
       const json = await response.json();
@@ -116,13 +124,20 @@ export default function TimeSavingDetails() {
       console.log("Error fetching saving details", error.message);
     }
   };
-
   const inputHandler = () => {
     const inputValue = parseFloat(input);
     if (!isNaN(inputValue)) {
       setSavedAmount((prev) => prev + inputValue);
       setInput("");
     }
+  };
+  
+  const editHandler = (id, goal, targetAmount, startDate, endDate) => {
+    console.log("Tiedot ", id, goal, targetAmount, startDate, endDate);
+    router.push({
+      pathname: "/createTimedSaving",
+      params: { id, goal, targetAmount, startDate, endDate }
+    });
   };
 
   return (
@@ -177,7 +192,7 @@ export default function TimeSavingDetails() {
 
         <ProgressBar savingsPercentage={savingsPercentage} />
 
-        <View style={styles.bottomSection}>
+<View style={styles.bottomSection}>
           <Text style={styles.labelText}>Enter saved amount:</Text>
           <TextInput
             style={styles.input}
@@ -185,15 +200,25 @@ export default function TimeSavingDetails() {
             onChangeText={setInput}
             keyboardType="numeric"
           />
+
           <TouchableOpacity style={styles.customButton} onPress={inputHandler}>
             <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.customButton} 
+            onPress={() => editHandler(params.id, goal, targetAmount, startDate, endDate)}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.customButton, { backgroundColor: "#E9E4DF", marginTop: 10 }]}
             onPress={() => router.back()}
           >
             <Text style={[styles.buttonText, { color: "#000" }]}>Back</Text>
           </TouchableOpacity>
+        </View>
         </View>
       </SafeAreaView>
     </ImageBackground>
