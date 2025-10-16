@@ -8,26 +8,32 @@ export default function Create() {
 
   return (
     <ImageBackground
-      source={require("../../../assets/background2.png")}
+      source={require("../../../assets/background3.png")}
       style={styles.background}
       resizeMode="cover"
     >
       <SafeAreaView style={styles.container}>
-        <View style={styles.topSection}>
+        <View style={styles.contentBox}>
+          <Text style={styles.headerText}>Choose your saving plan</Text>
+
           <TouchableOpacity
             style={styles.customButton}
+            activeOpacity={0.85}
             onPress={() => router.push("/createOwnPace")}
           >
             <Text style={styles.buttonText}>Save at my own pace</Text>
           </TouchableOpacity>
 
-          <Text style={styles.sectionHeader}>Or create timed saving plan.</Text>
+          <Text style={styles.dividerText}>or</Text>
 
           <TouchableOpacity
-            style={styles.customButton}
+            style={[styles.customButton, { backgroundColor: "#E9E4DF" }]}
+            activeOpacity={0.85}
             onPress={() => router.push("/createTimedSaving")}
           >
-            <Text style={styles.buttonText}>Timed saving plan!</Text>
+            <Text style={[styles.buttonText, { color: "#000" }]}>
+              Timed saving plan
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -43,47 +49,44 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    alignItems: "center",
+    paddingHorizontal: 20,
     backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
-  topSection: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-  middleSection: {
-    flex: 2,
-    alignItems: "center",
-    justifyContent: "center",
+  contentBox: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    padding: 30,
     width: "90%",
-  },
-  bottomSection: {
-    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+  },
+  headerText: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#ffefdfcc",
+    marginBottom: 25,
+    textAlign: "center",
   },
   customButton: {
-    marginTop: 10,
+    backgroundColor: "#83C7EC",
     paddingVertical: 12,
     paddingHorizontal: 30,
-    backgroundColor: "#83C7EC",
     borderRadius: 8,
     borderWidth: 2,
     borderColor: "#7b3e3eff",
     alignItems: "center",
+    marginVertical: 10,
+    width: "80%",
   },
   buttonText: {
     fontWeight: "600",
     color: "rgba(0, 0, 0, 0.8)",
   },
-  sectionHeader: {
+  dividerText: {
     fontSize: 16,
     fontWeight: "500",
     color: "#ffefdfcc",
-    marginVertical: 10,
-    textAlign: "center",
+    marginVertical: 15,
   },
 });

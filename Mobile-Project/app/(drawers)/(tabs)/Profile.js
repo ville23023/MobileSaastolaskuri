@@ -54,7 +54,7 @@ export default function UserProfile() {
   if (loading) {
     return (
       <View style={[styles.container, { backgroundColor: "rgba(0,0,0,0.8)" }]}>
-        <ActivityIndicator size="large" color="#7d6ef1" />
+        <ActivityIndicator size="large" color="#83C7EC" />
         <Text style={{ color: "#ffefdfcc", marginTop: 10 }}>Ladataan profiilia...</Text>
       </View>
     );
