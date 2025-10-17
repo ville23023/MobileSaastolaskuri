@@ -103,6 +103,7 @@ export default function TimeSavingDetails() {
         return;
       }
       await savingDetails(token, params.id);
+      await getSavedAmounts(token, params.id);
     };
     fetchDetails();
   }, [params.id, token]);
@@ -173,6 +174,27 @@ export default function TimeSavingDetails() {
       pathname: "/createTimedSaving",
       params: { id, goal, targetAmount, startDate, endDate }
     });
+  };
+
+  const getSavedAmounts = async () => {
+    try {
+      const response = await fetch(`${API_URL}:3000/api/all_saved_amounts`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+      }
+        const data = await response.json();
+        const filterWithGoal = data.filter(item => item.goal === params.id);
+        const totalSaved = filterWithGoal.reduce((sum, item) => sum + item.savedAmount, 0);
+        setSavedAmount(totalSaved);
+      } catch (error) {
+        console.log("Error fetching saved amounts", error.message);
+      }
   };
 
   return (

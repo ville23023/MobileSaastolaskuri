@@ -25,6 +25,7 @@ export default function FreeSaving() {
   const [savedAmount, setSavedAmount] = useState(0);
   const [input, setInput] = useState('');
   const [goalAchieved, setGoalAchieved] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const savingsPercentage =
     !isNaN(targetAmount) && targetAmount > 0
@@ -55,19 +56,11 @@ export default function FreeSaving() {
           return;
         }
         await savingDetails(token, params.id);
+        await getSavedAmounts(token, params.id);
       };
     fetchDetails();
   }, [params.id, token]);
   
-
-  const inputHandler = () => {
-    const inputValue = parseFloat(input);
-    if (!isNaN(inputValue)) {
-      setSavedAmount((prev) => prev + inputValue);
-      setInput('');
-    }
-  };
-
   const editHandler = (id, goal, targetAmount) => {
     console.log("Tiedot ", id, goal, targetAmount);
     router.push({
@@ -93,6 +86,66 @@ export default function FreeSaving() {
       console.log("Error fething saving details", error.message);
     }
   }
+
+  const inputHandler = async () => {
+    const inputValue = parseFloat(input);
+
+    if (isNaN(inputValue)) {
+      setErrorMessage("Please enter a valid number.");
+      return;
+    }
+    try {
+        setErrorMessage("");
+        const response = await fetch(`${API_URL}:3000/api/create_saved_amount`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ 
+            goal: params.id, 
+            savedAmount: inputValue,
+            date: new Date().toISOString(),
+          }),
+        });
+  
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson ? await response.json() : {};
+
+        if (response.ok) {
+          setSavedAmount((prev) => prev + inputValue);
+          setInput("");
+        } else {
+            setErrorMessage(data.error || "Adding the amount failed");
+        }
+      } catch (err) {
+        setErrorMessage("Network error. Please try again.");
+        console.log(err);
+      }  
+  };
+
+  const getSavedAmounts = async () => {
+    try {
+      const response = await fetch(`${API_URL}:3000/api/all_saved_amounts`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+      }
+        const data = await response.json();
+        const filterWithGoal = data.filter(item => item.goal === params.id);
+        const totalSaved = filterWithGoal.reduce((sum, item) => sum + item.savedAmount, 0);
+        setSavedAmount(totalSaved);
+      } catch (error) {
+        console.log("Error fetching saved amounts", error.message);
+      }
+  };
 
   return (
     <ImageBackground
@@ -129,6 +182,9 @@ export default function FreeSaving() {
         </View>
 
         <View style={styles.bottomSection}>
+            {errorMessage !== "" && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )} 
           <Text style={styles.labelText}>Enter saved amount:</Text>
           <TextInput
             style={styles.input}
@@ -145,6 +201,13 @@ export default function FreeSaving() {
             onPress={() => editHandler(params.id, goal, targetAmount)}
           >
             <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.customButton} 
+            onPress={() => router.push({pathname: "/savedAmountList", params:{id: params.id, goal: goal}})}
+          >
+            <Text style={styles.buttonText}>List</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -274,5 +337,10 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "600",
     color: "rgba(0, 0, 0, 0.8)",
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontWeight: '600',
   },
 });

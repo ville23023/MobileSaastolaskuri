@@ -3,12 +3,11 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, ImageBackground, Al
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 export default function AdminPanel() { 
     const [users, setUsers] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const router = useRouter();
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     useEffect(() => {
         listAllUsers();
