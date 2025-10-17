@@ -1,16 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-export default function SavingsAmountList() {
-    const [savedAmount, setSavedAmount] = useState([]);
-    const [errorMessage, setErrorMessage] = useState("");
-    const router = useRouter();
-    const params = useLocalSearchParams();
-    const goal = params.goal;
+export default function SavedAmountList() {
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const [savedAmountList, setSavedAmountList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const goal = params.goal;
 
   useEffect(() => {
     const listAmounts = async () => {
@@ -31,7 +30,7 @@ export default function SavingsAmountList() {
 
         if (response.ok) {
           const filterWithGoal = data.filter(item => item.goal === params.id);
-          setSavedAmount(filterWithGoal);
+          setSavedAmountList(filterWithGoal);
         } else {
             setErrorMessage(data.error || "List retrieval failed");
         }
@@ -43,23 +42,73 @@ export default function SavingsAmountList() {
 
         listAmounts();
     }, [params.id]);
+
+    const deleteAmount = (id) =>{
+      Alert.alert(
+        "Delete saved amount",
+        "Are you sure you want to delete this saved amount?",
+        [
+          {
+            text: "No",
+            style: "cancel",
+          },
+          {text: "Yes", onPress: async() =>{
+            try{
+              const token = await AsyncStorage.getItem("token");
+              const response = await fetch(`${API_URL}:3000/api/delete_saved_amount/${id}`,{
+                method: "DELETE",
+                headers: {
+                  "Authorization": `Bearer ${token}`,
+                },
+            });
+            if (!response.ok){
+              throw new Error(`Response status: ${response.status}`);
+            } else {
+              Alert.alert(
+                "Saved amount deleted",
+                "The saved amount has been deleted successfully.",
+              )
+            }
+            let json = await response.json();
+            console.log(json);
+            setSavedAmountList(currentList =>{
+              return currentList.filter(item => item._id !== id);
+            })
+            }catch (error){
+            console.log("Something went wrong", error.message);
+            Alert.alert(
+              "Delete error",
+              "Could not delete the saved amount.",
+            )
+          }
+          }}
+        ])
+    }
+
     return (
         <View style={styles.overlay}>
           <View style={styles.container}>
             <View style={styles.topSection}>
-              <Text style={styles.titleText}>Saved Amounts {goal}</Text>
+              <Text style={styles.titleText}>Saved amounts{'\n'}for goal: {goal}</Text>
+          <TouchableOpacity
+            style={[styles.customButton, { backgroundColor: "#E9E4DF", marginTop: 10 }]}
+            activeOpacity={0.8}
+            onPress={() => router.back()}
+            >
+            <Text style={[styles.buttonText, { color: "#000" }]}>Back</Text>
+          </TouchableOpacity>
             </View>
 
             <View style={styles.middleSection}>
-              {savedAmount.length > 0 ? (
+              {savedAmountList.length > 0 ? (
                 <FlatList
-                  data={savedAmount}
+                  data={savedAmountList}
                   keyExtractor={(item) => item._id.toString()}
                   renderItem={({ item }) => (
-                    <View style={styles.itemStyle}>
+                    <TouchableOpacity style={styles.itemStyle} activeOpacity={0.8} onLongPress={() =>deleteAmount(item._id)}>
                       <Text style={styles.userText}>{item.savedAmount}€</Text>
                       <Text style={styles.userText}>{new Date(item.date).toLocaleDateString('fi-FI')}</Text>
-                    </View>
+                    </TouchableOpacity>
                   )}
                 />
               ) : (

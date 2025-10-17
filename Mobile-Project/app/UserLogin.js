@@ -14,6 +14,7 @@ export default function UserLogin() {
   const router = useRouter();
 
   const checkInputText = async() => {
+    setErrorMessage("");
     if(!userName.trim()){
       alert("Enter username!");
       return;
