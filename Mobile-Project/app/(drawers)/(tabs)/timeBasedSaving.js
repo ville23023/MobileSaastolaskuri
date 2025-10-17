@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, ImageBackground, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, TextInput, ImageBackground, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from 'react-native-svg';
 import React, { useEffect, useState } from 'react';
@@ -65,7 +65,7 @@ export default function TimeSavingDetails() {
   const [progress, setProgress] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
   const [goalAchieved, setGoalAchieved] = useState(false);
-
+  const [errorMessage, setErrorMessage] = useState("");
 
   const newSelectedDate = new Date(endDate);
   const newStartDate = new Date(startDate);
@@ -127,12 +127,44 @@ export default function TimeSavingDetails() {
       console.log("Error fetching saving details", error.message);
     }
   };
-  const inputHandler = () => {
+
+  const inputHandler = async () => {
     const inputValue = parseFloat(input);
-    if (!isNaN(inputValue)) {
-      setSavedAmount((prev) => prev + inputValue);
-      setInput("");
+
+    if (isNaN(inputValue)) {
+      setErrorMessage("Please enter a valid number.");
+      return;
     }
+    try {
+        setErrorMessage("");
+        const response = await fetch(`${API_URL}:3000/api/create_saved_amount`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ 
+            goal: params.id, 
+            savedAmount: inputValue,
+            date: new Date().toISOString(),
+          }),
+        });
+  
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson ? await response.json() : {};
+
+        if (response.ok) {
+          setSavedAmount((prev) => prev + inputValue);
+          setInput("");
+        } else {
+            setErrorMessage(data.error || "Adding the amount failed");
+        }
+      } catch (err) {
+        setErrorMessage("Network error. Please try again.");
+        console.log(err);
+      }  
   };
   
   const editHandler = (id, goal, targetAmount, startDate, endDate) => {
@@ -149,6 +181,7 @@ export default function TimeSavingDetails() {
       style={styles.background}
       resizeMode="cover"
       >
+        <ScrollView>
       <SafeAreaView style={styles.container}>
         <Text style={styles.goalTitle}>{goal}</Text>
 
@@ -196,6 +229,9 @@ export default function TimeSavingDetails() {
         <ProgressBar savingsPercentage={savingsPercentage} />
 
           <View style={styles.bottomSection}>
+            {errorMessage !== "" && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )} 
           <Text style={styles.labelText}>Enter saved amount:</Text>
           <TextInput
             style={styles.input}
@@ -215,6 +251,13 @@ export default function TimeSavingDetails() {
             <Text style={styles.buttonText}>Edit</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity 
+            style={styles.customButton} 
+            onPress={() => router.push({pathname: "/savedAmountList", params:{id: params.id, goal: goal}})}
+          >
+            <Text style={styles.buttonText}>List</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.customButton, { backgroundColor: "#E9E4DF", marginTop: 10 }]}
             onPress={() => router.back()}
@@ -224,6 +267,7 @@ export default function TimeSavingDetails() {
         </View>
         
       </SafeAreaView>
+      </ScrollView>
     </ImageBackground>
   );
 }
@@ -360,5 +404,10 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "600",
     color: "rgba(0, 0, 0, 0.8)",
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    fontWeight: '600',
   },
 });
