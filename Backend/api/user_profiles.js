@@ -257,6 +257,7 @@ router.delete("/api/delete_saved_amount/:id", authenticate, async(req, res) =>{
 router.patch("/api/update_saved_amount/:id", authenticate, async(req, res)=>{
   const updateAmount = req.params.id;
   const { savedAmount, date } = req.body;
+  console.log("Received body:", req.body);
   try{
     const amount = await SavedAmount.findOne({ _id: updateAmount, user: req.user.userId })
     if (!amount){
@@ -266,10 +267,10 @@ router.patch("/api/update_saved_amount/:id", authenticate, async(req, res)=>{
     if (date) amount.date = date;
 
     await amount.save();
-    res.status(200).json("Amount edited successfully");
+    res.status(200).json({ message: "Amount edited successfully:" , savedAmount: amount.savedAmount});
   } catch(error){
     console.log(error);
     res.status(400).json("Something went wrong");
-  }
+  };
 })
 module.exports = router;

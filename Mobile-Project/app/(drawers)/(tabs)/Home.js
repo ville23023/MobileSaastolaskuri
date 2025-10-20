@@ -36,7 +36,7 @@ export default function Home() {
   },[params])
 
   const pressHandler = (id, startDate, endDate) => {
-    console.log(startDate, endDate);
+    console.log("Start date: " + startDate,"| End date: " + endDate);
     if (!startDate || !endDate){
       router.push({pathname:"/freeSaving", params:{ id }})
       return;
