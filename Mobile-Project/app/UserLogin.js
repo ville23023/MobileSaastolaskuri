@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     color: '#ECF3FB',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: 'center',
     marginBottom: 5,
     color: '#D5DEE9',
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   registerText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#D1B9AA',
   },
   errorText: {
