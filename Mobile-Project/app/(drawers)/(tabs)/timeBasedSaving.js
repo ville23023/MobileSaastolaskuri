@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     textAlign: "center",
     fontWeight: "600",
-    fontSize: 13,
+    fontSize: 15,
     color: "#ffefdfcc",
   },
   timeProgressDetail: {

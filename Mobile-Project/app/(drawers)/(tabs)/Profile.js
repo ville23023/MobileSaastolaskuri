@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     color: "#ffefdfcc",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: "center",
     marginBottom: 20,
     color: "rgba(255, 255, 255, 0.8)",
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     color: "rgba(0, 0, 0, 0.8)",
   },
   registerText: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#ffefdfcc",
   },
 });

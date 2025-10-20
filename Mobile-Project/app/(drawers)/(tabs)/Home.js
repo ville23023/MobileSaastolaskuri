@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   noItemsText: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#D5DEE9",
     marginTop: 10,
     textAlign: "center",
