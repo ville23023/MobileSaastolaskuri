@@ -30,7 +30,10 @@ export default function UserSignUp() {
     if (!password.trim()) {
       setErrorMessage("Password is required.");
       return; 
-    }
+    } else if (!(password.length >= 8)) {
+      setErrorMessage("The password must be at least 8 characters long.");
+      return;
+    } 
     if (!confirmPassword.trim()) {
       setErrorMessage("Confirm password.");
       return; 

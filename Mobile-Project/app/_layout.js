@@ -8,6 +8,7 @@ export default function RootLayout(){
         <Stack.Screen name="createTimedSaving" options={{ title: "Luo ajastettu suunnitelma" }} />
         <Stack.Screen name="createOwnPace" options={{ title: "Luo ajaton suunnitelma" }} />
         <Stack.Screen name="savedAmountList" options={{ title: "Saved Amounts" }} />
+        <Stack.Screen name="adminPanel" options={{ title: "Admin panel" }} />
         <Stack.Screen name="(drawers)" options={{ headerShown: false }} />
     </Stack>
     )

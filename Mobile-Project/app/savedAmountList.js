@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, Modal, TextInput, Button  } from 'react-native';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
@@ -6,10 +6,13 @@ import React, { useState, useEffect } from 'react';
 export default function SavedAmountList() {
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const [savedAmountList, setSavedAmountList] = useState([]);
+  const [savedAmount, setSavedAmount]=useState("");
+  const [updateId, setUpdateId]=useState(-1);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const params = useLocalSearchParams();
   const goal = params.goal;
+  const [visibility, setVisibility]=useState(false);
 
   useEffect(() => {
     const listAmounts = async () => {
@@ -43,6 +46,14 @@ export default function SavedAmountList() {
         listAmounts();
     }, [params.id]);
 
+    const updateAmountHandler = (id) => {
+      const item = savedAmountList.find(i => i._id === id);
+      if (item) {
+        setUpdateId(id);
+        setSavedAmount(String(item.savedAmount));
+        setVisibility(true);
+      }
+    };
     const deleteAmount = (id) =>{
       Alert.alert(
         "Delete saved amount",
@@ -84,6 +95,64 @@ export default function SavedAmountList() {
           }}
         ])
     }
+    const updateAmount=async() =>{
+      try{
+        if (isNaN(parseFloat(savedAmount))) {
+          Alert.alert("Please enter a valid number.");
+          return;
+        }
+        const token = await AsyncStorage.getItem("token");
+        const response = await fetch(`${API_URL}:3000/api/update_saved_amount/${updateId}`,{
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({savedAmount: parseFloat(savedAmount), date: new Date()}),
+      });
+      if (!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const json = await response.json();
+      console.log(json);
+
+      await getUpdatedSavedAmounts(); 
+
+    setUpdateId(-1);
+    setVisibility(false);
+    setSavedAmount("");
+    Alert.alert(
+      "Saved amount updated",
+    );
+  }catch (error){
+      console.log("Something went wrong", error.message);
+      Alert.alert(
+        "Could not update the saved amount.",
+      )
+    }
+    }
+
+    const getUpdatedSavedAmounts = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        const response = await fetch(`${API_URL}:3000/api/all_saved_amounts`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        const json = await response.json();
+        const filterAmountByGoal = json.filter(item => item.goal === params.id);
+        setSavedAmountList(filterAmountByGoal);
+      } catch (error) {
+        console.error("Failed to fetch updated list:", error.message);
+      }
+    };
 
     return (
         <View style={styles.overlay}>
@@ -105,7 +174,11 @@ export default function SavedAmountList() {
                   data={savedAmountList}
                   keyExtractor={(item) => item._id.toString()}
                   renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.itemStyle} activeOpacity={0.8} onLongPress={() =>deleteAmount(item._id)}>
+                    <TouchableOpacity style={styles.itemStyle} 
+                      activeOpacity={0.8} 
+                      onLongPress={() =>deleteAmount(item._id)}
+                      onPress={() =>updateAmountHandler(item._id)}
+                      >
                       <Text style={styles.userText}>{item.savedAmount}€</Text>
                       <Text style={styles.userText}>{new Date(item.date).toLocaleDateString('fi-FI')}</Text>
                     </TouchableOpacity>
@@ -114,6 +187,19 @@ export default function SavedAmountList() {
               ) : (
                 <Text style={styles.noItemsText}>{errorMessage || "No data found"}</Text>
               )}
+      <Modal visible={visibility} animationType="slide">
+        <View style={styles.formView}>
+          <Text style={styles.title}>Edit saved amount</Text>
+          <TextInput style={styles.inputStyle}
+              onChangeText={setSavedAmount}
+              value={savedAmount}
+              />
+          <View style={styles.okcancelStyle}>
+            <View style={styles.buttonView}><Button style={styles.buttonStyle} title='UPDATE' onPress={updateAmount}/></View>
+            <View style={styles.buttonView}><Button style={styles.buttonStyle} title='Cancel' onPress={()=> setVisibility(false)}/></View>
+          </View>
+        </View>
+      </Modal>
             </View>
           </View>
         </View>
@@ -180,20 +266,42 @@ const styles = StyleSheet.create({
       fontWeight: "600",
       color: "rgba(0,0,0,0.8)",
     },
-    deleteButton: {
-      backgroundColor: "#E74C3C",
-      paddingVertical: 6,
-      paddingHorizontal: 12,
-      borderRadius: 6,
-    },
-    deleteButtonText: {
-      color: "#fff",
-      fontWeight: "600",
-    },
     noItemsText: {
       fontSize: 16,
       color: "#D5DEE9",
       textAlign: "center",
       marginTop: 20,
     },
+    // MODAL:
+    title:{
+      fontSize: 20,
+      fontWeight: "bold",
+      marginBottom: 20,
+    },
+    okcancelStyle:{
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "60%",    
+    },
+    formView:{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#fff",
+      padding: 20,
+    },
+    inputStyle:{
+      width: "80%",
+      height: 50,
+      borderColor: "#ccc",
+      borderWidth: 1,
+      borderRadius: 8,
+      marginBottom: 30,
+      textAlign: "center",
+      fontSize: 18,
+    },
+    buttonView:{
+      flex: 1,
+      marginHorizontal: 5,
+    }
   });

@@ -4,6 +4,7 @@ import Svg, { Circle } from 'react-native-svg';
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 function ProgressBar({ savingsPercentage }) {
   return (    
@@ -96,7 +97,15 @@ export default function TimeSavingDetails() {
     };
     getToken();
   }, []);
-  
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (token){
+        getSavedAmounts(token, params.id);
+      }
+    }, [token])
+  );
+
  useEffect(() => {
     const fetchDetails = async () => {
       if (!token || !params.id) {
