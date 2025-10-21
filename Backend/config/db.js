@@ -6,11 +6,9 @@ const connectDB = async () => {
     await mongoose.connect(process.env.ATLAS_URI);
     console.log("MongoDB Connected");
   } catch (err) {
-    console.error(err.message);
-    process.exit(1);
+    console.error("DB Connection Error", err.message);
+    throw err;
   }
 };
-
-connectDB();
 
 module.exports = connectDB;
