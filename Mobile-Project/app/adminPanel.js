@@ -12,7 +12,17 @@ export default function AdminPanel() {
     useEffect(() => {
         listAllUsers();
     }, []);
-      
+   
+    const logOut = async () =>{
+      try{
+          await AsyncStorage.removeItem("token");
+          router.replace("/UserLogin");
+      } catch(error){
+          console.log("Logout error", error.message);
+      }
+      console.log("Logout done");
+  }
+
     const listAllUsers = async() => {
         try{
             const token = await AsyncStorage.getItem("token");
@@ -85,7 +95,7 @@ export default function AdminPanel() {
           <View style={styles.container}>
             <View style={styles.topSection}>
               <Text style={styles.titleText}>User Management</Text>
-              <TouchableOpacity style={styles.customButton} onPress={() => router.replace("/UserLogin")}>
+              <TouchableOpacity style={styles.customButton} onPress={logOut}>
                 <Text style={styles.buttonText}>Log out</Text>
               </TouchableOpacity>
             </View>

@@ -18,7 +18,10 @@ export default function UserSignUp() {
     if (!username.trim()) {
       setErrorMessage("Username is required.");
       return;
-    }
+    } else if (!(username.length >= 5 && username.length <= 12)) {
+      setErrorMessage("The username must be 5 to 12 characters long.");
+      return;
+    } 
     if (!email.trim()) {
       setErrorMessage("Email is required.");
       return;
