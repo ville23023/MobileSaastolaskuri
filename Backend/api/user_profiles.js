@@ -95,6 +95,7 @@ router.delete("/api/user-delete/:id", authenticate, admin, async (req, res) => {
     if (deleteUser.role === 'admin') {
       return res.status(403).json({error:"Cannot delete admin user"});
     }
+    await SavedAmount.deleteMany({ user: userId });
     await SavingGoal.deleteMany({ user: userId });
     await User.deleteOne({ _id: userId });
     res.status(200).json("User deleted successfully");
