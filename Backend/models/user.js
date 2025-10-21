@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
     default: 'user',
   },
 }, {timestamps: true});
+
 //Password salting and hashing
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

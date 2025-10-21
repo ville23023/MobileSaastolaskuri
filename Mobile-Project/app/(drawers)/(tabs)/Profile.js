@@ -1,53 +1,114 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, ActivityIndicator, Alert, Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { useIsFocused } from "@react-navigation/native";
+import { getAvatar } from "../../_sqlite/profilePicture";
+
+const avatars = [
+  require("../../../assets/avatars/avatar0.png"),
+  require("../../../assets/avatars/avatar1.png"),
+  require("../../../assets/avatars/avatar2.png"),
+  require("../../../assets/avatars/avatar3.png"),
+];
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(null);
+  const [avatar, setAvatar] = useState(0);
   const router = useRouter();
+  const isFocused = useIsFocused();
 
-  // Tämä simuloisi MongoDB:stä haettua käyttäjätietoa
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+  // token
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchToken = async () => {
+      const storedToken = await AsyncStorage.getItem("token");
+      if (!storedToken) {
+        Alert.alert("Kirjautuminen vaaditaan", "Kirjaudu ensin sisään", [
+          { text: "OK", onPress: () => router.replace("/UserLogin") }
+        ]);
+        return;
+      }
+      setToken(storedToken);
+    };
+    fetchToken();
+  }, []);
+
+  // avatar päivittyy kun sivu avautuu TAI kun siihen palataan
+  useEffect(() => {
+    if (isFocused) {
+      (async () => {
+        const current = await getAvatar();
+        setAvatar(current);
+      })();
+    }
+  }, [isFocused]);
+
+  // fetch user from API
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchUser = async () => {
       try {
-        // myöhemmin tähän esim:
-        // const response = await fetch("https://your-api.com/api/user/123");
-        // const data = await response.json();
-        const data = {
-          name: "Käyttäjä",
-          email: "Käyttäjä@sposti.com",
-        };
+        const response = await fetch(`${API_URL}/api/user/me`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json",
+          },
+        });
+
+        if (response.status === 401) {
+          await AsyncStorage.removeItem("token");
+          Alert.alert("Istunto vanhentunut", "Kirjaudu uudelleen", [
+            { text: "OK", onPress: () => router.replace("/UserLogin") }
+          ]);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        const data = await response.json();
         setUser(data);
-      } catch (error) {
-        console.error("Käyttäjätietojen haku epäonnistui:", error);
-        alert("Virhe käyttäjätietojen haussa");
+      } catch (err) {
+        console.log("User fetch error:", err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserData();
-  }, []);
+    fetchUser();
+  }, [token]);
 
   const saveProfile = async () => {
-    if (!user?.name.trim() || !user?.email.trim() || !user?.goal.trim()) {
-      alert("Täytä kaikki kentät!");
-      return;
-    }
+    if (!token || !user) return;
 
     try {
-      console.log("Tallennetaan profiili:", user);
-      // myöhemmin tähän:
-      // await fetch("https://your-api.com/api/user/update", {
-      //   method: "PUT",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(user),
-      // });
-      alert("Profiili tallennettu!");
-    } catch (error) {
-      console.error("Tallennus epäonnistui:", error);
-      alert("Virhe tallennuksessa");
+      const response = await fetch(`${API_URL}/api/user/me`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userName: user.userName,
+          email: user.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      Alert.alert("Onnistui", "Profiili päivitetty");
+    } catch (err) {
+      console.log("Save profile error:", err.message);
+      Alert.alert("Virhe", "Profiilia ei voitu päivittää");
     }
   };
 
@@ -60,6 +121,14 @@ export default function UserProfile() {
     );
   }
 
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: "#fff" }}>Käyttäjätietoja ei saatu ladattua</Text>
+      </View>
+    );
+  }
+
   return (
     <ImageBackground
       source={require('../../../assets/background.png')}
@@ -67,22 +136,26 @@ export default function UserProfile() {
       resizeMode="cover"
     >
       <View style={styles.container}>
+
         <Text style={styles.title}>Profiili</Text>
         <Text style={styles.subtitle}>Hallinnoi tietojasi:</Text>
 
+        <TouchableOpacity onPress={() => router.push("/_profile/AvatarSelection")}>
+          <Image
+            source={avatars[avatar]}
+            style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 20 }}
+          />
+        </TouchableOpacity>
+
         <TextInput
           style={styles.input}
-          value={user?.name}
-          onChangeText={(text) => setUser({ ...user, name: text })}
-          placeholder="Nimi"
-          placeholderTextColor="#555"
+          value={user.userName || ""}
+          onChangeText={(text) => setUser({ ...user, userName: text })}
         />
         <TextInput
           style={styles.input}
-          value={user?.email}
+          value={user.email || ""}
           onChangeText={(text) => setUser({ ...user, email: text })}
-          placeholder="Sähköposti"
-          placeholderTextColor="#555"
         />
 
         <TouchableOpacity style={styles.button} onPress={saveProfile}>
@@ -98,11 +171,7 @@ export default function UserProfile() {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
+  background: { flex: 1, width: "100%", height: "100%" },
   container: {
     flex: 1,
     alignItems: "center",
