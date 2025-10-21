@@ -15,6 +15,9 @@ export default function SavedAmountList() {
   const [visibility, setVisibility]=useState(false);
 
   useEffect(() => {
+    listAmounts();
+  }, [params.id]);
+
     const listAmounts = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -32,8 +35,8 @@ export default function SavedAmountList() {
         const data = isJson ? await response.json() : {};
 
         if (response.ok) {
-          const filterWithGoal = data.filter(item => item.goal === params.id);
-          setSavedAmountList(filterWithGoal);
+          const filterByGoal = data.filter(item => item.goal === params.id);
+          setSavedAmountList(filterByGoal);
         } else {
             setErrorMessage(data.error || "List retrieval failed");
         }
@@ -43,11 +46,8 @@ export default function SavedAmountList() {
       }  
         };
 
-        listAmounts();
-    }, [params.id]);
-
     const updateAmountHandler = (id) => {
-      const item = savedAmountList.find(i => i._id === id);
+      const item = savedAmountList.find(item => item._id === id);
       if (item) {
         setUpdateId(id);
         setSavedAmount(String(item.savedAmount));
@@ -116,7 +116,7 @@ export default function SavedAmountList() {
       const json = await response.json();
       console.log(json);
 
-      await getUpdatedSavedAmounts(); 
+      await listAmounts();
 
     setUpdateId(-1);
     setVisibility(false);
@@ -131,29 +131,6 @@ export default function SavedAmountList() {
       )
     }
     }
-
-    const getUpdatedSavedAmounts = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const response = await fetch(`${API_URL}/api/all_saved_amounts`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-    
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-        const json = await response.json();
-        const filterAmountByGoal = json.filter(item => item.goal === params.id);
-        setSavedAmountList(filterAmountByGoal);
-      } catch (error) {
-        console.error("Failed to fetch updated list:", error.message);
-      }
-    };
-
     return (
         <View style={styles.overlay}>
           <View style={styles.container}>
