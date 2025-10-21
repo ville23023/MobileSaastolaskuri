@@ -52,4 +52,4 @@ jobs:
           app-name: 'MobileSaastolaskuri'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C82569FB7D8C448086265E3EFC6A4828 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6ED48830418A4B948D587B5669011581 }}
