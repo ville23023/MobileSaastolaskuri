@@ -257,7 +257,6 @@ router.delete("/api/delete_saved_amount/:id", authenticate, async(req, res) =>{
 router.patch("/api/update_saved_amount/:id", authenticate, async(req, res)=>{
   const updateAmount = req.params.id;
   const { savedAmount, date } = req.body;
-  console.log("Received body:", req.body);
   try{
     const amount = await SavedAmount.findOne({ _id: updateAmount, user: req.user.userId })
     if (!amount){
