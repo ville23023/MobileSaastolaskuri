@@ -26,7 +26,7 @@ export default function AdminPanel() {
     const listAllUsers = async() => {
         try{
             const token = await AsyncStorage.getItem("token");
-            const response = await fetch(`${API_URL}:3000/api/users`, {
+            const response = await fetch(`${API_URL}/api/users`, {
                 method: "GET",
                 headers: {
                   "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export default function AdminPanel() {
           { text: 'Cancel', style: 'cancel' },
           { text: 'Delete', onPress: async () => {
             const token = await AsyncStorage.getItem("token");
-            const response = await fetch(`${API_URL}:3000/api/user-delete/${userId}`, {
+            const response = await fetch(`${API_URL}/api/user-delete/${userId}`, {
                 method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",

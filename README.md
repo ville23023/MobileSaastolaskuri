@@ -25,6 +25,6 @@ Sovelluksella on admin-käyttäjä, joka voi poistaa rekisteröityneitä käytt�
 
 # Tekijät
 
-[Ville]
+[Ville](https://github.com/ville23023)
 [Rebekka](https://github.com/Rebepekka)
-[Eetu]
+[Eetu](https://github.com/EetuHAMK)

@@ -92,7 +92,7 @@ export default function CreateTimedSaving() {
     }
     try {
       const newGoal = createSavingGoal();
-      const response = await fetch(`${API_URL}:3000/api/create_saving_goal`, {
+      const response = await fetch(`${API_URL}/api/create_saving_goal`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",
@@ -121,7 +121,7 @@ export default function CreateTimedSaving() {
     try {
       let updatedId = params.id;
       let editedGoal = createSavingGoal(); 
-      let response = await fetch(`${API_URL}:3000/api/edit_saving_plan/${updatedId}`,{
+      let response = await fetch(`${API_URL}/api/edit_saving_plan/${updatedId}`,{
         method:"PATCH",
         headers:{
           "Content-type":"application/json",

@@ -21,7 +21,7 @@ export default function SavedAmountList() {
     const listAmounts = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const response = await fetch(`${API_URL}:3000/api/all_saved_amounts`, {
+      const response = await fetch(`${API_URL}/api/all_saved_amounts`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,7 @@ export default function SavedAmountList() {
           {text: "Yes", onPress: async() =>{
             try{
               const token = await AsyncStorage.getItem("token");
-              const response = await fetch(`${API_URL}:3000/api/delete_saved_amount/${id}`,{
+              const response = await fetch(`${API_URL}/api/delete_saved_amount/${id}`,{
                 method: "DELETE",
                 headers: {
                   "Authorization": `Bearer ${token}`,
@@ -102,7 +102,7 @@ export default function SavedAmountList() {
           return;
         }
         const token = await AsyncStorage.getItem("token");
-        const response = await fetch(`${API_URL}:3000/api/update_saved_amount/${updateId}`,{
+        const response = await fetch(`${API_URL}/api/update_saved_amount/${updateId}`,{
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -131,7 +131,6 @@ export default function SavedAmountList() {
       )
     }
     }
-
     return (
         <View style={styles.overlay}>
           <View style={styles.container}>
