@@ -57,7 +57,7 @@ export default function AdminPanel() {
           { text: 'Cancel', style: 'cancel' },
           { text: 'Delete', onPress: async () => {
             const token = await AsyncStorage.getItem("token");
-            const response = await fetch(`${API_URL}/api/user-delete/${userId}`, {
+            const response = await fetch(`${API_URL}/api/users/${userId}`, {
                 method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
