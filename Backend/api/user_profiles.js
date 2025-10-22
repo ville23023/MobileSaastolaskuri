@@ -290,5 +290,28 @@ router.patch("/update_saved_amount/:id", authenticate, async (req, res) => {
     res.status(400).json("Something went wrong");
   }
 });
+// Create primary admin, for one-time use only
+router.post('/api/create-admin', async (req, res) => {
+  try {
+    const { userName, email, password, secretKey } = req.body;
+    const existingUser = await User.findOne({userName});
+    if (existingUser) {
+      return res.status(400).json({error: "Username already exists"});
+    }
+    if (secretKey !== process.env.ADMIN_CREATION_SECRET) {
+      return res.status(403).json({error:"Invalid secret key"});
+    }
+      const admin = await User.create({
+        userName,
+        email,
+        password,
+        role: 'admin'
+    });
+    res.status(201).json({message:"Admin user created successfully"});
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({error:"Something went wrong"});
+  }
+});
 
 module.exports = router;
