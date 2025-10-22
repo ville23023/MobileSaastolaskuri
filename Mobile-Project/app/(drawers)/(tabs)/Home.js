@@ -51,7 +51,7 @@ export default function Home() {
       return;
     }
     try{
-      let response = await fetch(`${API_URL}:3000/api/all_saving_plans`,{
+      let response = await fetch(`${API_URL}/api/all_saving_plans`,{
         headers:{
           "Authorization":`Bearer ${token}`,
         }
@@ -77,7 +77,7 @@ export default function Home() {
         },
         {text: "Yes", onPress: async() =>{
           try{
-            const response = await fetch(`${API_URL}:3000/api/delete_saving_plan/${id}`,{
+            const response = await fetch(`${API_URL}/api/delete_saving_plan/${id}`,{
               method: "DELETE",
               headers: {
                 "Authorization": `Bearer ${token}`,

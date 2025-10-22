@@ -120,7 +120,7 @@ export default function TimeSavingDetails() {
   const savingDetails = async (token, id) => {
     
     try {
-      const response = await fetch(`${API_URL}:3000/api/saving_plan_details/${id}`, {
+      const response = await fetch(`${API_URL}/api/saving_plan_details/${id}`, {
         headers:{ 
           "Authorization": `Bearer ${token}` 
         }
@@ -147,7 +147,7 @@ export default function TimeSavingDetails() {
     }
     try {
         setErrorMessage("");
-        const response = await fetch(`${API_URL}:3000/api/create_saved_amount`, {
+        const response = await fetch(`${API_URL}/api/create_saved_amount`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -187,7 +187,7 @@ export default function TimeSavingDetails() {
 
   const getSavedAmounts = async () => {
     try {
-      const response = await fetch(`${API_URL}:3000/api/all_saved_amounts`, {
+      const response = await fetch(`${API_URL}/api/all_saved_amounts`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
