@@ -27,7 +27,7 @@ export default function UserProfile() {
     const fetchToken = async () => {
       const storedToken = await AsyncStorage.getItem("token");
       if (!storedToken) {
-        Alert.alert("Kirjautuminen vaaditaan", "Kirjaudu ensin sisään", [
+        Alert.alert("Login required", "Log in first", [
           { text: "OK", onPress: () => router.replace("/UserLogin") }
         ]);
         return;
@@ -63,7 +63,7 @@ export default function UserProfile() {
 
         if (response.status === 401) {
           await AsyncStorage.removeItem("token");
-          Alert.alert("Istunto vanhentunut", "Kirjaudu uudelleen", [
+          Alert.alert("Session expired", "Please log in again", [
             { text: "OK", onPress: () => router.replace("/UserLogin") }
           ]);
           return;
@@ -105,10 +105,10 @@ export default function UserProfile() {
         throw new Error(await response.text());
       }
 
-      Alert.alert("Onnistui", "Profiili päivitetty");
+      Alert.alert("Success", "Profile updated");
     } catch (err) {
       console.log("Save profile error:", err.message);
-      Alert.alert("Virhe", "Profiilia ei voitu päivittää");
+      Alert.alert("Error", "Profile could not be updated");
     }
   };
 
@@ -116,7 +116,7 @@ export default function UserProfile() {
     return (
       <View style={[styles.container, { backgroundColor: "rgba(0,0,0,0.8)" }]}>
         <ActivityIndicator size="large" color="#83C7EC" />
-        <Text style={{ color: "#ffefdfcc", marginTop: 10 }}>Ladataan profiilia...</Text>
+        <Text style={{ color: "#ffefdfcc", marginTop: 10 }}>Loading profile...</Text>
       </View>
     );
   }
@@ -124,7 +124,7 @@ export default function UserProfile() {
   if (!user) {
     return (
       <View style={styles.container}>
-        <Text style={{ color: "#fff" }}>Käyttäjätietoja ei saatu ladattua</Text>
+        <Text style={{ color: "#fff" }}>Failed to load user data</Text>
       </View>
     );
   }
@@ -137,8 +137,8 @@ export default function UserProfile() {
     >
       <View style={styles.container}>
 
-        <Text style={styles.title}>Profiili</Text>
-        <Text style={styles.subtitle}>Hallinnoi tietojasi:</Text>
+        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.subtitle}>Manage your information:</Text>
 
         <TouchableOpacity onPress={() => router.push("/_profile/AvatarSelection")}>
           <Image
@@ -159,11 +159,11 @@ export default function UserProfile() {
         />
 
         <TouchableOpacity style={styles.button} onPress={saveProfile}>
-          <Text style={styles.buttonText}>Tallenna</Text>
+          <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.replace("/Home")}>
-          <Text style={styles.registerText}>← Takaisin kotiin</Text>
+          <Text style={styles.registerText}>← Back to Home</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
